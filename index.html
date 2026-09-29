@@ -133,11 +133,16 @@
                 const config = await res.json();
 
                 let allCardsHTML = "";
+                const loadedFolders = new Set(); // Защита от дублей
 
                 for (const [category, folders] of Object.entries(config)) {
                     if (!Array.isArray(folders)) continue;
 
                     for (const folder of folders) {
+                        // Если папка уже обрабатывалась, пропускаем её
+                        if (loadedFolders.has(folder)) continue;
+                        loadedFolders.add(folder);
+
                         try {
                             const productRes = await fetch(`./${folder}/index.html`);
                             if (!productRes.ok) continue;
