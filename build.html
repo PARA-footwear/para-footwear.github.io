@@ -2,38 +2,31 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>PARA | Майстер Вітрини</title>
+    <title>PARA | Конструктор Головної Сторінки</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #f0f2f5; color: #333; }
-        .box { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { border-bottom: 3px solid #b17b44; padding-bottom: 15px; text-transform: uppercase; font-size: 24px; letter-spacing: 1px; }
-        p { color: #666; margin-bottom: 20px; }
-        textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; transition: 0.3s; outline: none; }
-        textarea:focus { border-color: #b17b44; }
-        .btn { background: #111; color: #fff; padding: 18px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 25px; width: 100%; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
-        .btn:hover { background: #b17b44; transform: translateY(-2px); }
-        #status { margin-top: 20px; font-weight: bold; text-align: center; min-height: 24px; }
-        .result-section { display: none; margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px; }
-        .copy-btn { background: #27ae60; margin-bottom: 15px; }
-        .copy-btn:hover { background: #219150; }
+        body { font-family: sans-serif; padding: 40px; background: #f4f4f4; line-height: 1.6; }
+        .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h1 { border-bottom: 2px solid #b17b44; padding-bottom: 10px; text-transform: uppercase; font-size: 22px; }
+        textarea { width: 100%; height: 100px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn { background: #111; color: #fff; padding: 15px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 20px; width: 100%; }
+        .btn:hover { background: #b17b44; }
+        #status { margin-top: 20px; font-weight: bold; color: #d32f2f; }
+        .hidden-result { display: none; margin-top: 30px; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h1>Конструктор Каталогу <span>PARA</span></h1>
-    <p>Вкажіть назви папок з моделями (наприклад: <code>319, N342, N344, N352, mocasins352</code>). Скрипт сам знайде назви, кольори, ціни та витягне друге фото для ефекту при наведенні.</p>
-    
-    <textarea id="foldersInput" placeholder="Введіть папки через кому..."></textarea>
-    
-    <button class="btn" onclick="buildCatalog()">⚡ Згенерувати ідеальний каталог</button>
-    
+    <h1>Авто-Генератор Каталогу PARA (з категоріями)</h1>
+    <p>Введіть назви папок через кому (наприклад: <code>319, N342, N344, N352, mocasins352</code>):</p>
+    <textarea id="foldersInput" placeholder="319, N342, N344, N352, mocasins352"></textarea>
+    <button class="btn" onclick="buildCatalog()">⚡ ЗІБРАТИ ВІТРИНУ (З КАТЕГОРІЯМИ)</button>
     <div id="status"></div>
 
-    <div id="resultArea" class="result-section">
-        <h3>✅ Готово! Скопіюйте цей код у ваш index.html:</h3>
-        <button class="btn copy-btn" onclick="copyResult()">📋 Скопіювати весь код</button>
-        <textarea id="finalCode" readonly style="height: 300px; font-family: monospace; font-size: 13px; background: #fafafa;"></textarea>
+    <div id="resultArea" class="hidden-result">
+        <h3>Готово! Скопіюйте код нижче та збережіть як index.html:</h3>
+        <button class="btn" style="background: #27ae60;" onclick="copyResult()">📋 Скопіювати код</button>
+        <textarea id="finalCode" style="height: 300px; margin-top: 15px;"></textarea>
     </div>
 </div>
 
@@ -41,91 +34,98 @@
     async function buildCatalog() {
         const input = document.getElementById('foldersInput').value;
         const status = document.getElementById('status');
-        const folders = [...new Set(input.split(',').map(f => f.trim()).filter(f => f !== ""))];
+        const folders = input.split(',').map(f => f.trim()).filter(f => f !== "");
         
         if (folders.length === 0) {
-            status.innerHTML = "<span style='color:#e74c3c'>⚠️ Будь ласка, введіть хоча б одну папку!</span>";
+            status.innerText = "⚠️ Введіть хоча б одну папку!";
             return;
         }
 
         status.style.color = "#b17b44";
-        status.innerText = "⏳ Збираю дані з ваших лендінгів...";
+        status.innerText = "⏳ Аналізую сайти та визначаю категорії... зачекайте...";
 
         let allCardsHTML = "";
 
         for (const folder of folders) {
             try {
-                const response = await fetch(`./${folder}/index.html?t=${Date.now()}`);
-                if (!response.ok) throw new Error("Папку не знайдено");
-                
+                const response = await fetch(`./${folder}/index.html`);
+                if (!response.ok) throw new Error("Не знайдено");
                 const html = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
-                const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Мокасини PARA";
+                // 1. Беремо назву моделі з H1
+                const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
                 
+                // Визначаємо категорію автоматично за назвою або папкою
+                let category = "all";
+                const lowerName = modelName.toLowerCase();
+                const lowerFolder = folder.toLowerCase();
+
+                if (lowerName.includes('мокасин') || lowerFolder.includes('mocasins')) {
+                    category = 'moccasins';
+                } else if (lowerName.includes('лофер')) {
+                    category = 'loafers';
+                } else if (lowerName.includes('кед')) {
+                    category = 'sneakers_low'; // або кеди
+                } else if (lowerName.includes('сандал') || lowerFolder.includes('n500')) {
+                    category = 'sandals';
+                } else if (lowerName.includes('туфл') || lowerFolder.includes('n342') || lowerFolder.includes('n344')) {
+                    category = 'shoes';
+                } else if (lowerName.includes('крос')) {
+                    category = 'sneakers';
+                } else if (lowerName.includes('черевик') || lowerName.includes('ботинок')) {
+                    category = 'boots';
+                }
+
+                // 2. Шукаємо всі кольори через JS об'єкт або кружечки
                 const variants = [];
                 const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
-                
                 if (jsText) {
                     const imgData = {};
                     const imgLines = jsText[1].split('\n');
-                    
                     imgLines.forEach(line => {
-                        // ОНОВЛЕНА ЛОГІКА: Шукаємо перше І ДРУГЕ фото в масиві
-                        // Приклад рядка: 'color_1': ['1.jpg', '2.jpg']
-                        const match = line.match(/'(color_\d+)'\s*:\s*\[\s*'([^']+)'(?:,\s*'([^']+)')?/);
-                        if (match) {
-                            imgData[match[1]] = {
-                                first: match[2],
-                                second: match[3] || null // Якщо другого фото немає, буде null
-                            };
-                        }
+                        const match = line.match(/'(color_\d+)':\s*\[\s*'([^']+)'/);
+                        if (match) imgData[match[1]] = match[2];
                     });
 
                     const circles = doc.querySelectorAll('.color-circle');
-                    const addedKeys = new Set();
-
                     circles.forEach(circle => {
                         const onclick = circle.getAttribute('onclick');
-                        const match = onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
+                        const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
                         if (match) {
                             const key = match[2];
-                            if (!addedKeys.has(key)) {
-                                variants.push({
-                                    fullName: match[1],
-                                    shortName: circle.getAttribute('title') || match[1],
-                                    key: key,
-                                    firstImg: imgData[key] ? imgData[key].first : "",
-                                    secondImg: imgData[key] ? imgData[key].second : null
-                                });
-                                addedKeys.add(key);
-                            }
+                            variants.push({
+                                fullName: match[1],
+                                shortName: circle.getAttribute('title') || match[1],
+                                key: key,
+                                firstImg: imgData[key] || ""
+                            });
                         }
                     });
                 }
 
-                variants.forEach(v => {
-                    // Беремо реальне друге фото з масиву лендінгу
-                    let secondImg = v.secondImg;
+                // Якщо кружечків немає, беремо першу картинку зі сторінки
+                if (variants.length === 0) {
+                    const firstImgTag = doc.querySelector('img');
+                    const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
+                    variants.push({
+                        shortName: 'Стандарт',
+                        key: 'color_0',
+                        firstImg: imgSrc.replace(/^\.\//, '')
+                    });
+                }
 
-                    // Запасний план: якщо в масиві було тільки одне фото, пробуємо вгадати друге
-                    if (!secondImg) {
-                        secondImg = v.firstImg;
-                        if (secondImg.includes('_1.')) {
-                            secondImg = secondImg.replace('_1.', '_2.');
-                        } else if (secondImg.includes('(1).')) {
-                            secondImg = secondImg.replace('(1).', '(2).');
-                        } else {
-                            secondImg = secondImg.replace(/(\.[\w\d_-]+)$/i, '_2$1');
-                        }
-                    }
-
+                // 3. Генеруємо картки для кожного кольору з атрибутом data-category
+                variants.forEach((v, index) => {
+                    // Витягуємо перші дві картинки для ефекту наведення якщо є в розмітці або з imgData
+                    let img1 = v.firstImg;
+                    let img2 = v.firstImg;
+                    
                     allCardsHTML += `
-            <a href="${folder}/?v=${parseInt(v.key.split('_')[1]) + 1}" class="card" data-folder="${folder}">
+            <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}">
                 <div class="card-img-wrapper">
-                    <img src="${folder}/${v.firstImg}" class="img-primary" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
-                    <img src="${folder}/${secondImg}" class="img-secondary" alt="" onerror="this.previousElementSibling.classList.add('keep-visible'); this.remove();">
+                    <img src="${folder}/${img1}" class="img-primary" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
                 </div>
                 <div class="card-info">
                     <div class="card-title">${modelName}</div>
@@ -137,14 +137,15 @@
                 });
 
             } catch (e) {
-                console.warn("Пропущено: " + folder, e);
+                console.error("Помилка в папці " + folder, e);
             }
         }
 
         const finalHTML = generateFullLayout(allCardsHTML);
         document.getElementById('finalCode').value = finalHTML;
         document.getElementById('resultArea').style.display = 'block';
-        status.innerHTML = "<span style='color:#27ae60'>✅ Каталог сформовано!</span>";
+        status.style.color = "#27ae60";
+        status.innerText = "✅ Каталог успішно зібрано з категоріями!";
     }
 
     function generateFullLayout(cards) {
@@ -153,7 +154,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PARA | Каталог</title>
+    <title>PARA footwear | Офіційний каталог</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -164,54 +165,65 @@
         header { background-color: #1a1a1a; color: #fff; padding: 22px 0; text-align: center; font-size: 26px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         header span { color: #b17b44; }
 
-        .hero { text-align: center; padding: 60px 20px 20px; background-color: #fcfcfc; color: #111; }
+        .hero { text-align: center; padding: 50px 20px 20px; background-color: #fcfcfc; color: #111; }
         .hero h1 { font-size: 38px; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; position: relative; display: inline-block; }
         .hero h1::after { content: ''; display: block; width: 60px; height: 4px; background: #b17b44; margin: 15px auto 0; border-radius: 2px; }
+
+        /* Стилі для кнопок фільтрації категорій */
+        .categories-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 20px auto 40px;
+            padding: 0 20px;
+        }
+        .cat-btn {
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .cat-btn:hover {
+            border-color: #b17b44;
+            color: #b17b44;
+        }
+        .cat-btn.active {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
         
-        .catalog-container { max-width: 1200px; margin: 40px auto 60px; padding: 0 20px; }
+        .catalog-container { max-width: 1200px; margin: 0 auto 60px; padding: 0 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
         
         .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.06); transition: 0.3s; text-decoration: none; display: flex; flex-direction: column; border: 1px solid #f0f0f0; }
         .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.12); }
         
         .card-img-wrapper { position: relative; width: 100%; aspect-ratio: 4/5; overflow: hidden; background: #f9f9f9; padding: 15px; }
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.4s ease-in-out; }
+        .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
         
-        .img-primary { position: relative; opacity: 1; z-index: 1; }
-        .img-secondary { position: absolute; top: 15px; left: 15px; width: calc(100% - 30px) !important; height: calc(100% - 30px) !important; opacity: 0; z-index: 2; }
+        .card-info { padding: 20px; border-top: 1px solid #f9f9f9; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-title { font-size: 16px; color: #111; font-weight: 700; margin-bottom: 5px; min-height: 45px; display: flex; align-items: center; }
+        .card-color { font-size: 13px; color: #888; margin-bottom: 12px; }
         
-        .card:hover .img-primary:not(.keep-visible) { opacity: 0; }
-        .card:hover .img-secondary { opacity: 1; }
+        .card-price-container { display: flex; align-items: baseline; gap: 10px; margin-top: auto; margin-bottom: 15px; min-height: 30px; }
+        .card-price { font-size: 22px; color: #d32f2f; font-weight: 800; }
+        .card-old-price { font-size: 15px; color: #999; text-decoration: line-through; }
         
-        .card-info { padding: 25px 20px; border-top: 1px solid #f9f9f9; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-title { font-size: 17px; color: #111; font-weight: 700; margin-bottom: 5px; min-height: 48px; display: flex; align-items: center; }
-        .card-color { font-size: 13px; color: #888; margin-bottom: 15px; font-weight: 500; }
-        
-        .card-price-container { display: flex; align-items: baseline; gap: 10px; margin-top: auto; margin-bottom: 20px; min-height: 32px; }
-        .card-price { font-size: 24px; color: #d32f2f; font-weight: 800; }
-        .card-old-price { font-size: 16px; color: #999; text-decoration: line-through; }
-        
-        .card-btn { background: #111; color: #fff; text-align: center; padding: 14px; border-radius: 8px; font-weight: 700; text-transform: uppercase; font-size: 14px; transition: 0.3s; }
+        .card-btn { background: #111; color: #fff; text-align: center; padding: 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; font-size: 13px; transition: 0.3s; }
         .card:hover .card-btn { background: #b17b44; }
 
-        .about-section { background: #1a1a1a; color: #fff; padding: 80px 20px; margin-top: 80px; }
-        .about-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-        .about-inner h2 { font-size: 32px; font-weight: 800; color: #b17b44; margin-bottom: 20px; text-transform: uppercase; }
-        .about-main-text { font-size: 18px; font-weight: 600; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6; }
-        
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; text-align: left; }
-        .feature-item { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; border-left: 4px solid #b17b44; }
-        .feature-item h3 { font-size: 18px; margin-bottom: 15px; color: #b17b44; text-transform: uppercase; }
-        .feature-item p { font-size: 15px; color: #ccc; line-height: 1.7; }
-        
-        .about-footer { margin-top: 50px; font-size: 20px; font-weight: 800; text-transform: uppercase; color: #b17b44; letter-spacing: 2px; }
-
         @media (max-width: 768px) {
-            .hero h1 { font-size: 28px; }
             .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .card-info { padding: 15px; }
-            .card-title { font-size: 14px; min-height: 40px; }
-            .about-inner h2 { font-size: 26px; }
+            .categories-nav { gap: 6px; }
+            .cat-btn { padding: 8px 14px; font-size: 12px; }
         }
     </style>
 </head>
@@ -222,35 +234,40 @@
         <h1>Каталог</h1>
     </div>
 
-    <div class="catalog-container">
-        <div class="grid">${cards}</div>
+    <!-- Панель перемикачів категорій -->
+    <div class="categories-nav">
+        <button class="cat-btn active" onclick="filterCategory('all', this)">Усі</button>
+        <button class="cat-btn" onclick="filterCategory('moccasins', this)">Мокасини</button>
+        <button class="cat-btn" onclick="filterCategory('loafers', this)">Лофери</button>
+        <button class="cat-btn" onclick="filterCategory('sneakers_low', this)">Кеди</button>
+        <button class="cat-btn" onclick="filterCategory('sandals', this)">Сандалі</button>
+        <button class="cat-btn" onclick="filterCategory('shoes', this)">Туфлі</button>
+        <button class="cat-btn" onclick="filterCategory('sneakers', this)">Кросівки</button>
+        <button class="cat-btn" onclick="filterCategory('boots', this)">Черевики</button>
     </div>
 
-    <section class="about-section">
-        <div class="about-inner">
-            <h2>ПРО КОМПАНІЮ</h2>
-            <p class="about-main-text">PARA — взуття, розраховане на роки. Ми особисто відбираємо найкращі моделі від українських виробників, які проходять жорстку перевірку на якість та міцність.</p>
-            
-            <div class="features-grid">
-                <div class="feature-item">
-                    <h3>100% Натуральність</h3>
-                    <p>Тільки шкіра, нубук та замша. Жодного пластику чи замінників — вони просто не витримують реальних навантажень так, як натуральний матеріал.</p>
-                </div>
-                <div class="feature-item">
-                    <h3>Витривалість</h3>
-                    <p>Поки мас-маркет втрачає вигляд за сезон, наше взуття служить роками. Це робота українських майстрів із запасом міцності, що значно випереджає стандарти популярних брендів.</p>
-                </div>
-                <div class="feature-item">
-                    <h3>Раціональний вибір</h3>
-                    <p>Найкращий внесок в екологію — це річ, яку не доведеться викидати за рік. Якісна шкіра — це інвестиція у довговічність, а не в одноразові речі.</p>
-                </div>
-            </div>
-
-            <div class="about-footer">PARA — фокус на справжньому.</div>
+    <div class="catalog-container">
+        <div class="grid">
+            ${cards}
         </div>
-    </section>
+    </div>
 
     <script>
+        // Функція фільтрації за категоріями
+        function filterCategory(category, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.card').forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Завантаження актуальних цін із папок
         document.addEventListener("DOMContentLoaded", () => {
             const priceCache = {};
             document.querySelectorAll('.card').forEach(card => {
@@ -285,7 +302,7 @@
                 container.classList.remove('loading-price');
             }
         });
-    <\/script>
+    </script>
 </body>
 </html>`;
     }
@@ -294,7 +311,7 @@
         const copyText = document.getElementById("finalCode");
         copyText.select();
         document.execCommand("copy");
-        alert("Код успішно скопійовано! Тепер вставте його у файл index.html");
+        alert("Код скопійовано!");
     }
 </script>
 
