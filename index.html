@@ -147,13 +147,13 @@
 
                             const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
 
-                            // Цейхгауз цін
+                            // Цены
                             const fetchedPriceEl = doc.querySelector('.price-new') || doc.querySelector('.st-new');
                             const fetchedOldPriceEl = doc.querySelector('.price-old') || doc.querySelector('.st-old');
                             const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
                             const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
 
-                            // Кольори
+                            // Цвета
                             const variants = [];
                             const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
                             if (jsText) {
