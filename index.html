@@ -133,13 +133,12 @@
                 const config = await res.json();
 
                 let allCardsHTML = "";
-                const loadedFolders = new Set(); // Защита от дублей
+                const loadedFolders = new Set(); // Защита от повторного сканирования папки
 
                 for (const [category, folders] of Object.entries(config)) {
                     if (!Array.isArray(folders)) continue;
 
                     for (const folder of folders) {
-                        // Если папка уже обрабатывалась, пропускаем её
                         if (loadedFolders.has(folder)) continue;
                         loadedFolders.add(folder);
 
@@ -158,9 +157,11 @@
                             const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
                             const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
 
-                            // Цвета
+                            // Цвета (с защитой от дубликатов ключей вариантов)
                             const variants = [];
+                            const seenKeys = new Set();
                             const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
+                            
                             if (jsText) {
                                 const imgData = {};
                                 jsText[1].split('\n').forEach(line => {
@@ -173,11 +174,14 @@
                                     const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
                                     if (match) {
                                         const key = match[2];
-                                        variants.push({
-                                            shortName: circle.getAttribute('title') || match[1],
-                                            key: key,
-                                            firstImg: imgData[key] || ""
-                                        });
+                                        if (!seenKeys.has(key)) {
+                                            seenKeys.add(key);
+                                            variants.push({
+                                                shortName: circle.getAttribute('title') || match[1],
+                                                key: key,
+                                                firstImg: imgData[key] || ""
+                                            });
+                                        }
                                     }
                                 });
                             }
@@ -204,7 +208,7 @@
                                         <div class="card-color">Колір: ${v.shortName}</div>
                                         <div class="card-price-container">
                                             ${oldP ? '<span class="card-old-price">' + oldP + '</span>' : ''}
-                                            <span class="card-price">' + newP + '</span>
+                                            <span class="card-price">${newP}</span>
                                         </div>
                                         <div class="card-btn">Детальніше</div>
                                     </div>
