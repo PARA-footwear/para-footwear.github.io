@@ -114,7 +114,6 @@
         function filterCategory(category, btnElement) {
             currentCategory = category;
             
-            // Змінюємо активну кнопку
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             if (btnElement) {
                 btnElement.classList.add('active');
@@ -123,7 +122,6 @@
                 if (targetBtn) targetBtn.classList.add('active');
             }
 
-            // Показуємо/ховаємо картки
             document.querySelectorAll('.card').forEach(card => {
                 if (category === 'all' || card.getAttribute('data-category') === category) {
                     card.style.display = 'flex';
@@ -132,7 +130,6 @@
                 }
             });
 
-            // Оновлюємо посилання в адресному рядку браузера без перезавантаження
             if (category === 'all') {
                 history.pushState("", document.title, window.location.pathname + window.location.search);
             } else {
@@ -147,105 +144,95 @@
                 if (!res.ok) throw new Error("Не вдалося завантажити config.json");
                 const config = await res.json();
 
-                const folderToCategory = {};
-                for (const [category, folders] of Object.entries(config)) {
-                    if (category === 'order' || !Array.isArray(folders)) continue;
-                    folders.forEach(folder => {
-                        folderToCategory[folder] = category;
-                    });
-                }
-
-                let foldersOrder = config.order && Array.isArray(config.order) && config.order.length > 0 
-                    ? config.order 
-                    : Object.keys(folderToCategory);
-
                 let allCardsHTML = "";
                 const processedFolders = new Set();
 
-                for (const folder of foldersOrder) {
-                    if (processedFolders.has(folder)) continue;
-                    processedFolders.add(folder);
+                // Идем строго по порядку категорий и списков внутри них в config.json
+                for (const [category, folders] of Object.entries(config)) {
+                    if (!Array.isArray(folders)) continue;
 
-                    const category = folderToCategory[folder] || 'all';
+                    for (const folder of folders) {
+                        if (processedFolders.has(folder)) continue;
+                        processedFolders.add(folder);
 
-                    try {
-                        const productRes = await fetch(`./${folder}/index.html`);
-                        if (!productRes.ok) continue;
-                        const html = await productRes.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
+                        try {
+                            const productRes = await fetch(`./${folder}/index.html`);
+                            if (!productRes.ok) continue;
+                            const html = await productRes.text();
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
 
-                        const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
+                            const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
 
-                        const fetchedPriceEl = doc.querySelector('.price-new') || doc.querySelector('.st-new');
-                        const fetchedOldPriceEl = doc.querySelector('.price-old') || doc.querySelector('.st-old');
-                        const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
-                        const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
+                            const fetchedPriceEl = doc.querySelector('.price-new') || doc.querySelector('.st-new');
+                            const fetchedOldPriceEl = doc.querySelector('.price-old') || doc.querySelector('.st-old');
+                            const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
+                            const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
 
-                        const variants = [];
-                        const seenKeys = new Set();
-                        const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
-                        
-                        if (jsText) {
-                            const imgData = {};
-                            jsText[1].split('\n').forEach(line => {
-                                const match = line.match(/'(color_\d+)':\s*\[\s*['"]([^'"]+)['"]/);
-                                if (match) imgData[match[1]] = match[2];
-                            });
+                            const variants = [];
+                            const seenKeys = new Set();
+                            const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
+                            
+                            if (jsText) {
+                                const imgData = {};
+                                jsText[1].split('\n').forEach(line => {
+                                    const match = line.match(/'(color_\d+)':\s*\[\s*['"]([^'"]+)['"]/);
+                                    if (match) imgData[match[1]] = match[2];
+                                });
 
-                            doc.querySelectorAll('.color-circle').forEach(circle => {
-                                const onclick = circle.getAttribute('onclick');
-                                const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
-                                if (match) {
-                                    const key = match[2];
-                                    if (!seenKeys.has(key)) {
-                                        seenKeys.add(key);
-                                        variants.push({
-                                            shortName: circle.getAttribute('title') || match[1],
-                                            key: key,
-                                            firstImg: imgData[key] || ""
-                                        });
+                                doc.querySelectorAll('.color-circle').forEach(circle => {
+                                    const onclick = circle.getAttribute('onclick');
+                                    const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
+                                    if (match) {
+                                        const key = match[2];
+                                        if (!seenKeys.has(key)) {
+                                            seenKeys.add(key);
+                                            variants.push({
+                                                shortName: circle.getAttribute('title') || match[1],
+                                                key: key,
+                                                firstImg: imgData[key] || ""
+                                            });
+                                        }
                                     }
-                                }
-                            });
-                        }
+                                });
+                            }
 
-                        if (variants.length === 0) {
-                            const firstImgTag = doc.querySelector('img');
-                            const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
-                            variants.push({
-                                shortName: 'Стандарт',
-                                key: 'color_0',
-                                firstImg: imgSrc.replace(/^\.\//, '')
-                            });
-                        }
+                            if (variants.length === 0) {
+                                const firstImgTag = doc.querySelector('img');
+                                const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
+                                variants.push({
+                                    shortName: 'Стандарт',
+                                    key: 'color_0',
+                                    firstImg: imgSrc.replace(/^\.\//, '')
+                                });
+                            }
 
-                        variants.forEach((v, index) => {
-                            allCardsHTML += `
-                            <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}" style="display: none;">
-                                <div class="card-img-wrapper">
-                                    <img src="${folder}/${v.firstImg}" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
-                                </div>
-                                <div class="card-info">
-                                    <div class="card-title">${modelName}</div>
-                                    <div class="card-color">Колір: ${v.shortName}</div>
-                                    <div class="card-price-container">
-                                        ${oldP ? '<span class="card-old-price">' + oldP + '</span>' : ''}
-                                        <span class="card-price">${newP}</span>
+                            variants.forEach((v, index) => {
+                                allCardsHTML += `
+                                <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}" style="display: none;">
+                                    <div class="card-img-wrapper">
+                                        <img src="${folder}/${v.firstImg}" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
                                     </div>
-                                    <div class="card-btn">Детальніше</div>
-                                </div>
-                            </a>`;
-                        });
+                                    <div class="card-info">
+                                        <div class="card-title">${modelName}</div>
+                                        <div class="card-color">Колір: ${v.shortName}</div>
+                                        <div class="card-price-container">
+                                            ${oldP ? '<span class="card-old-price">' + oldP + '</span>' : ''}
+                                            <span class="card-price">${newP}</span>
+                                        </div>
+                                        <div class="card-btn">Детальніше</div>
+                                    </div>
+                                </a>`;
+                            });
 
-                    } catch (err) {
-                        console.error("Помилка з папкою " + folder, err);
+                        } catch (err) {
+                            console.error("Помилка з папкою " + folder, err);
+                        }
                     }
                 }
 
                 grid.innerHTML = allCardsHTML || '<div class="loading-text">Товари не знайдені в config.json</div>';
 
-                // Перевіряємо посилання при завантаженні (наприклад, якщо зайшли за посиланням з #boots)
                 const hash = window.location.hash.replace('#', '');
                 const validCategories = ['moccasins', 'loafers', 'sneakers_low', 'sandals', 'shoes', 'sneakers', 'boots'];
                 
