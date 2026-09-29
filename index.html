@@ -70,14 +70,14 @@
     </div>
 
     <div class="categories-nav">
-        <button class="cat-btn active" onclick="filterCategory('all', this)">Усі</button>
-        <button class="cat-btn" onclick="filterCategory('moccasins', this)">Мокасини</button>
-        <button class="cat-btn" onclick="filterCategory('loafers', this)">Лофери</button>
-        <button class="cat-btn" onclick="filterCategory('sneakers_low', this)">Кеди</button>
-        <button class="cat-btn" onclick="filterCategory('sandals', this)">Сандалі</button>
-        <button class="cat-btn" onclick="filterCategory('shoes', this)">Туфлі</button>
-        <button class="cat-btn" onclick="filterCategory('sneakers', this)">Кросівки</button>
-        <button class="cat-btn" onclick="filterCategory('boots', this)">Черевики</button>
+        <button class="cat-btn" data-cat="all" onclick="filterCategory('all', this)">Усі</button>
+        <button class="cat-btn" data-cat="moccasins" onclick="filterCategory('moccasins', this)">Мокасини</button>
+        <button class="cat-btn" data-cat="loafers" onclick="filterCategory('loafers', this)">Лофери</button>
+        <button class="cat-btn" data-cat="sneakers_low" onclick="filterCategory('sneakers_low', this)">Кеди</button>
+        <button class="cat-btn" data-cat="sandals" onclick="filterCategory('sandals', this)">Сандалі</button>
+        <button class="cat-btn" data-cat="shoes" onclick="filterCategory('shoes', this)">Туфлі</button>
+        <button class="cat-btn" data-cat="sneakers" onclick="filterCategory('sneakers', this)">Кросівки</button>
+        <button class="cat-btn" data-cat="boots" onclick="filterCategory('boots', this)">Черевики</button>
     </div>
 
     <div class="catalog-container">
@@ -111,11 +111,19 @@
     <script>
         let currentCategory = 'all';
 
-        function filterCategory(category, btn) {
+        function filterCategory(category, btnElement) {
             currentCategory = category;
+            
+            // Змінюємо активну кнопку
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                const targetBtn = document.querySelector(`.cat-btn[data-cat="${category}"]`);
+                if (targetBtn) targetBtn.classList.add('active');
+            }
 
+            // Показуємо/ховаємо картки
             document.querySelectorAll('.card').forEach(card => {
                 if (category === 'all' || card.getAttribute('data-category') === category) {
                     card.style.display = 'flex';
@@ -123,6 +131,13 @@
                     card.style.display = 'none';
                 }
             });
+
+            // Оновлюємо посилання в адресному рядку браузера без перезавантаження
+            if (category === 'all') {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            } else {
+                history.pushState(null, null, '#' + category);
+            }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -132,96 +147,113 @@
                 if (!res.ok) throw new Error("Не вдалося завантажити config.json");
                 const config = await res.json();
 
-                let allCardsHTML = "";
-                const loadedFolders = new Set(); // Защита от повторного сканирования папки
-
+                const folderToCategory = {};
                 for (const [category, folders] of Object.entries(config)) {
-                    if (!Array.isArray(folders)) continue;
+                    if (category === 'order' || !Array.isArray(folders)) continue;
+                    folders.forEach(folder => {
+                        folderToCategory[folder] = category;
+                    });
+                }
 
-                    for (const folder of folders) {
-                        if (loadedFolders.has(folder)) continue;
-                        loadedFolders.add(folder);
+                let foldersOrder = config.order && Array.isArray(config.order) && config.order.length > 0 
+                    ? config.order 
+                    : Object.keys(folderToCategory);
 
-                        try {
-                            const productRes = await fetch(`./${folder}/index.html`);
-                            if (!productRes.ok) continue;
-                            const html = await productRes.text();
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
+                let allCardsHTML = "";
+                const processedFolders = new Set();
 
-                            const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
+                for (const folder of foldersOrder) {
+                    if (processedFolders.has(folder)) continue;
+                    processedFolders.add(folder);
 
-                            // Цены
-                            const fetchedPriceEl = doc.querySelector('.price-new') || doc.querySelector('.st-new');
-                            const fetchedOldPriceEl = doc.querySelector('.price-old') || doc.querySelector('.st-old');
-                            const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
-                            const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
+                    const category = folderToCategory[folder] || 'all';
 
-                            // Цвета (с защитой от дубликатов ключей вариантов)
-                            const variants = [];
-                            const seenKeys = new Set();
-                            const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
-                            
-                            if (jsText) {
-                                const imgData = {};
-                                jsText[1].split('\n').forEach(line => {
-                                    const match = line.match(/'(color_\d+)':\s*\[\s*['"]([^'"]+)['"]/);
-                                    if (match) imgData[match[1]] = match[2];
-                                });
+                    try {
+                        const productRes = await fetch(`./${folder}/index.html`);
+                        if (!productRes.ok) continue;
+                        const html = await productRes.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
 
-                                doc.querySelectorAll('.color-circle').forEach(circle => {
-                                    const onclick = circle.getAttribute('onclick');
-                                    const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
-                                    if (match) {
-                                        const key = match[2];
-                                        if (!seenKeys.has(key)) {
-                                            seenKeys.add(key);
-                                            variants.push({
-                                                shortName: circle.getAttribute('title') || match[1],
-                                                key: key,
-                                                firstImg: imgData[key] || ""
-                                            });
-                                        }
-                                    }
-                                });
-                            }
+                        const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
 
-                            if (variants.length === 0) {
-                                const firstImgTag = doc.querySelector('img');
-                                const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
-                                variants.push({
-                                    shortName: 'Стандарт',
-                                    key: 'color_0',
-                                    firstImg: imgSrc.replace(/^\.\//, '')
-                                });
-                            }
+                        const fetchedPriceEl = doc.querySelector('.price-new') || doc.querySelector('.st-new');
+                        const fetchedOldPriceEl = doc.querySelector('.price-old') || doc.querySelector('.st-old');
+                        const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
+                        const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
 
-                            variants.forEach((v, index) => {
-                                const displayStyle = (currentCategory === 'all' || currentCategory === category) ? 'flex' : 'none';
-                                allCardsHTML += `
-                                <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}" style="display: ${displayStyle};">
-                                    <div class="card-img-wrapper">
-                                        <img src="${folder}/${v.firstImg}" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
-                                    </div>
-                                    <div class="card-info">
-                                        <div class="card-title">${modelName}</div>
-                                        <div class="card-color">Колір: ${v.shortName}</div>
-                                        <div class="card-price-container">
-                                            ${oldP ? '<span class="card-old-price">' + oldP + '</span>' : ''}
-                                            <span class="card-price">${newP}</span>
-                                        </div>
-                                        <div class="card-btn">Детальніше</div>
-                                    </div>
-                                </a>`;
+                        const variants = [];
+                        const seenKeys = new Set();
+                        const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
+                        
+                        if (jsText) {
+                            const imgData = {};
+                            jsText[1].split('\n').forEach(line => {
+                                const match = line.match(/'(color_\d+)':\s*\[\s*['"]([^'"]+)['"]/);
+                                if (match) imgData[match[1]] = match[2];
                             });
 
-                        } catch (err) {
-                            console.error("Помилка з папкою " + folder, err);
+                            doc.querySelectorAll('.color-circle').forEach(circle => {
+                                const onclick = circle.getAttribute('onclick');
+                                const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
+                                if (match) {
+                                    const key = match[2];
+                                    if (!seenKeys.has(key)) {
+                                        seenKeys.add(key);
+                                        variants.push({
+                                            shortName: circle.getAttribute('title') || match[1],
+                                            key: key,
+                                            firstImg: imgData[key] || ""
+                                        });
+                                    }
+                                }
+                            });
                         }
+
+                        if (variants.length === 0) {
+                            const firstImgTag = doc.querySelector('img');
+                            const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
+                            variants.push({
+                                shortName: 'Стандарт',
+                                key: 'color_0',
+                                firstImg: imgSrc.replace(/^\.\//, '')
+                            });
+                        }
+
+                        variants.forEach((v, index) => {
+                            allCardsHTML += `
+                            <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}" style="display: none;">
+                                <div class="card-img-wrapper">
+                                    <img src="${folder}/${v.firstImg}" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
+                                </div>
+                                <div class="card-info">
+                                    <div class="card-title">${modelName}</div>
+                                    <div class="card-color">Колір: ${v.shortName}</div>
+                                    <div class="card-price-container">
+                                        ${oldP ? '<span class="card-old-price">' + oldP + '</span>' : ''}
+                                        <span class="card-price">${newP}</span>
+                                    </div>
+                                    <div class="card-btn">Детальніше</div>
+                                </div>
+                            </a>`;
+                        });
+
+                    } catch (err) {
+                        console.error("Помилка з папкою " + folder, err);
                     }
                 }
 
                 grid.innerHTML = allCardsHTML || '<div class="loading-text">Товари не знайдені в config.json</div>';
+
+                // Перевіряємо посилання при завантаженні (наприклад, якщо зайшли за посиланням з #boots)
+                const hash = window.location.hash.replace('#', '');
+                const validCategories = ['moccasins', 'loafers', 'sneakers_low', 'sandals', 'shoes', 'sneakers', 'boots'];
+                
+                if (validCategories.includes(hash)) {
+                    filterCategory(hash, null);
+                } else {
+                    filterCategory('all', document.querySelector('.cat-btn[data-cat="all"]'));
+                }
 
             } catch (e) {
                 grid.innerHTML = '<div class="loading-text" style="color: #d32f2f;">Помилка завантаження config.json</div>';
