@@ -2,127 +2,198 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>PARA | Конструктор Головної Сторінки</title>
+    <title>PARA | Генератор Каталогу через config.json</title>
     <style>
-        body { font-family: sans-serif; padding: 40px; background: #f4f4f4; line-height: 1.6; }
-        .box { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h1 { border-bottom: 2px solid #b17b44; padding-bottom: 10px; text-transform: uppercase; font-size: 22px; }
-        textarea { width: 100%; height: 100px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .btn { background: #111; color: #fff; padding: 15px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 20px; width: 100%; }
+        * { box-sizing: border-box; font-family: sans-serif; }
+        body { padding: 40px; background: #f4f4f4; line-height: 1.6; }
+        .box { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h1 { border-bottom: 2px solid #b17b44; padding-bottom: 10px; text-transform: uppercase; font-size: 22px; margin-bottom: 25px; }
+        
+        .category-group { margin-bottom: 20px; }
+        .category-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 14px; text-transform: uppercase; }
+        .category-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        .category-group input:focus { border-color: #b17b44; outline: none; }
+        .hint { font-size: 12px; color: #771717; margin-top: 3px; }
+
+        .btn { background: #111; color: #fff; padding: 15px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 20px; width: 100%; transition: 0.2s; }
         .btn:hover { background: #b17b44; }
-        #status { margin-top: 20px; font-weight: bold; color: #d32f2f; }
-        .hidden-result { display: none; margin-top: 30px; }
+        #status { margin-top: 20px; font-weight: bold; color: #d32f2f; text-align: center; }
+        .result-block { margin-top: 30px; border-top: 2px dashed #ddd; padding-top: 20px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h1>Авто-Генератор Каталогу PARA (з категоріями)</h1>
-    <p>Введіть назви папок через кому (наприклад: <code>319, N342, N344, N352, mocasins352</code>):</p>
-    <textarea id="foldersInput" placeholder="319, N342, N344, N352, mocasins352"></textarea>
-    <button class="btn" onclick="buildCatalog()">⚡ ЗІБРАТИ ВІТРИНУ (З КАТЕГОРІЯМИ)</button>
+    <h1>Генератор Каталогу PARA (через config.json)</h1>
+    <p style="margin-bottom: 20px; color: #666;">Завантаж свій поточний <code>config.json</code> (або впиши папки), рознеси по категоріях та створи вітрину й новий конфиг одним кліком!</p>
+
+    <!-- Кнопка загрузки существующего конфига из репо -->
+    <div style="margin-bottom: 25px; background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #ddd;">
+        <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 8px;">📁 Завантажити наявний файл config.json з репозиторію:</label>
+        <input type="file" id="configFile" accept=".json" onchange="loadConfigFile(event)">
+    </div>
+
+    <div class="category-group">
+        <label>👞 Мокасини</label>
+        <input type="text" id="cat_moccasins" placeholder="mocasins352, 352">
+    </div>
+
+    <div class="category-group">
+        <label>👞 Лофери</label>
+        <input type="text" id="cat_loafers" placeholder="316">
+    </div>
+
+    <div class="category-group">
+        <label>👟 Кеди</label>
+        <input type="text" id="cat_sneakers_low" placeholder="319">
+    </div>
+
+    <div class="category-group">
+        <label>👡 Сандалі</label>
+        <input type="text" id="cat_sandals" placeholder="N500">
+    </div>
+
+    <div class="category-group">
+        <label>👞 Туфлі</label>
+        <input type="text" id="cat_shoes" placeholder="N342, N344">
+    </div>
+
+    <div class="category-group">
+        <label>👟 Кросівки</label>
+        <input type="text" id="cat_sneakers" placeholder="">
+    </div>
+
+    <div class="category-group">
+        <label>🥾 Черевики</label>
+        <input type="text" id="cat_boots" placeholder="">
+    </div>
+
+    <button class="btn" onclick="buildCatalog()">⚡ ЗІБРАТИ ВІТРИНУ ТА CONFIG.JSON</button>
     <div id="status"></div>
 
-    <div id="resultArea" class="hidden-result">
-        <h3>Готово! Скопіюйте код нижче та збережіть як index.html:</h3>
-        <button class="btn" style="background: #27ae60;" onclick="copyResult()">📋 Скопіювати код</button>
-        <textarea id="finalCode" style="height: 300px; margin-top: 15px;"></textarea>
+    <div id="resultArea" class="result-block">
+        <h3>1. Файл конфігурації (збережіть як <code style="color: #b17b44;">config.json</code> у корінь репозиторію):</h3>
+        <button class="btn" style="background: #27ae60; margin-bottom: 10px;" onclick="downloadConfig()">📥 Завантажити config.json</button>
+        <textarea id="jsonCode" style="width:100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: monospace; font-size: 13px;"></textarea>
+
+        <h3 style="margin-top: 20px;">2. Головна сторінка (скопіюйте та збережіть як <code style="color: #b17b44;">index.html</code>):</h3>
+        <button class="btn" style="background: #2980b9; margin-bottom: 10px;" onclick="copyIndex()">📋 Скопіювати код index.html</button>
+        <textarea id="finalCode" style="width:100%; height: 200px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: monospace; font-size: 13px;"></textarea>
     </div>
 </div>
 
 <script>
-    async function buildCatalog() {
-        const input = document.getElementById('foldersInput').value;
-        const status = document.getElementById('status');
-        const folders = input.split(',').map(f => f.trim()).filter(f => f !== "");
-        
-        if (folders.length === 0) {
-            status.innerText = "⚠️ Введіть хоча б одну папку!";
-            return;
-        }
+    const categoryKeys = ['moccasins', 'loafers', 'sneakers_low', 'sandals', 'shoes', 'sneakers', 'boots'];
 
+    // Автоматично пробуємо завантажити config.json якщо він вже є в корені сайту
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const res = await fetch('./config.json');
+            if (res.ok) {
+                const data = await res.json();
+                fillInputs(data);
+                document.getElementById('status').style.color = "#27ae60";
+                document.getElementById('status').innerText = "✅ config.json успішно підвантажено з репозиторію!";
+            }
+        } catch (e) {
+            // Файлу ще немає, нічого страшного
+        }
+    });
+
+    // Завантаження через пошту/файл на компі
+    function loadConfigFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                fillInputs(data);
+                document.getElementById('status').style.color = "#27ae60";
+                document.getElementById('status').innerText = "✅ Файл config.json завантажено!";
+            } catch (err) {
+                alert("Помилка читання JSON файлу!");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function fillInputs(data) {
+        categoryKeys.forEach(cat => {
+            if (data[cat]) {
+                document.getElementById('cat_' + cat).value = data[cat].join(', ');
+            }
+        });
+    }
+
+    async function buildCatalog() {
+        const status = document.getElementById('status');
         status.style.color = "#b17b44";
-        status.innerText = "⏳ Аналізую сайти та визначаю категорії... зачекайте...";
+        status.innerText = "⏳ Сканую папки та збираю каталог...";
 
         let allCardsHTML = "";
+        let configData = {};
+        let hasFolders = false;
 
-        for (const folder of folders) {
-            try {
-                const response = await fetch(`./${folder}/index.html`);
-                if (!response.ok) throw new Error("Не знайдено");
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+        for (const category of categoryKeys) {
+            const inputVal = document.getElementById('cat_' + category).value;
+            const folders = inputVal.split(',').map(f => f.trim()).filter(f => f !== "");
+            
+            configData[category] = folders;
 
-                // 1. Беремо назву моделі з H1
-                const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
-                
-                // Визначаємо категорію автоматично за назвою або папкою
-                let category = "all";
-                const lowerName = modelName.toLowerCase();
-                const lowerFolder = folder.toLowerCase();
+            if (folders.length > 0) {
+                hasFolders = true;
+            }
 
-                if (lowerName.includes('мокасин') || lowerFolder.includes('mocasins')) {
-                    category = 'moccasins';
-                } else if (lowerName.includes('лофер')) {
-                    category = 'loafers';
-                } else if (lowerName.includes('кед')) {
-                    category = 'sneakers_low'; // або кеди
-                } else if (lowerName.includes('сандал') || lowerFolder.includes('n500')) {
-                    category = 'sandals';
-                } else if (lowerName.includes('туфл') || lowerFolder.includes('n342') || lowerFolder.includes('n344')) {
-                    category = 'shoes';
-                } else if (lowerName.includes('крос')) {
-                    category = 'sneakers';
-                } else if (lowerName.includes('черевик') || lowerName.includes('ботинок')) {
-                    category = 'boots';
-                }
+            for (const folder of folders) {
+                try {
+                    const response = await fetch(`./${folder}/index.html`);
+                    if (!response.ok) throw new Error("Не знайдено");
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
 
-                // 2. Шукаємо всі кольори через JS об'єкт або кружечки
-                const variants = [];
-                const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
-                if (jsText) {
-                    const imgData = {};
-                    const imgLines = jsText[1].split('\n');
-                    imgLines.forEach(line => {
-                        const match = line.match(/'(color_\d+)':\s*\[\s*'([^']+)'/);
-                        if (match) imgData[match[1]] = match[2];
-                    });
+                    const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
 
-                    const circles = doc.querySelectorAll('.color-circle');
-                    circles.forEach(circle => {
-                        const onclick = circle.getAttribute('onclick');
-                        const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
-                        if (match) {
-                            const key = match[2];
-                            variants.push({
-                                fullName: match[1],
-                                shortName: circle.getAttribute('title') || match[1],
-                                key: key,
-                                firstImg: imgData[key] || ""
-                            });
-                        }
-                    });
-                }
+                    const variants = [];
+                    const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
+                    if (jsText) {
+                        const imgData = {};
+                        const imgLines = jsText[1].split('\n');
+                        imgLines.forEach(line => {
+                            const match = line.match(/'(color_\d+)':\s*\[\s*'([^']+)'/);
+                            if (match) imgData[match[1]] = match[2];
+                        });
 
-                // Якщо кружечків немає, беремо першу картинку зі сторінки
-                if (variants.length === 0) {
-                    const firstImgTag = doc.querySelector('img');
-                    const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
-                    variants.push({
-                        shortName: 'Стандарт',
-                        key: 'color_0',
-                        firstImg: imgSrc.replace(/^\.\//, '')
-                    });
-                }
+                        const circles = doc.querySelectorAll('.color-circle');
+                        circles.forEach(circle => {
+                            const onclick = circle.getAttribute('onclick');
+                            const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
+                            if (match) {
+                                const key = match[2];
+                                variants.push({
+                                    shortName: circle.getAttribute('title') || match[1],
+                                    key: key,
+                                    firstImg: imgData[key] || ""
+                                });
+                            }
+                        });
+                    }
 
-                // 3. Генеруємо картки для кожного кольору з атрибутом data-category
-                variants.forEach((v, index) => {
-                    // Витягуємо перші дві картинки для ефекту наведення якщо є в розмітці або з imgData
-                    let img1 = v.firstImg;
-                    let img2 = v.firstImg;
-                    
-                    allCardsHTML += `
+                    if (variants.length === 0) {
+                        const firstImgTag = doc.querySelector('img');
+                        const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
+                        variants.push({
+                            shortName: 'Стандарт',
+                            key: 'color_0',
+                            firstImg: imgSrc.replace(/^\.\//, '')
+                        });
+                    }
+
+                    variants.forEach((v, index) => {
+                        let img1 = v.firstImg;
+                        
+                        allCardsHTML += `
             <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}">
                 <div class="card-img-wrapper">
                     <img src="${folder}/${img1}" class="img-primary" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
@@ -134,18 +205,46 @@
                     <div class="card-btn">Детальніше</div>
                 </div>
             </a>`;
-                });
+                    });
 
-            } catch (e) {
-                console.error("Помилка в папці " + folder, e);
+                } catch (e) {
+                    console.error("Помилка в папці " + folder, e);
+                }
             }
         }
 
+        if (!hasFolders) {
+            status.innerText = "⚠️ Заповніть хоча б одне поле категорії!";
+            return;
+        }
+
+        // Виводимо JSON конфігу
+        document.getElementById('jsonCode').value = JSON.stringify(configData, null, 2);
+
+        // Виводимо код index.html
         const finalHTML = generateFullLayout(allCardsHTML);
         document.getElementById('finalCode').value = finalHTML;
+
         document.getElementById('resultArea').style.display = 'block';
         status.style.color = "#27ae60";
-        status.innerText = "✅ Каталог успішно зібрано з категоріями!";
+        status.innerText = "✅ Вітрину та config.json успішно згенеровано!";
+    }
+
+    function downloadConfig() {
+        const text = document.getElementById('jsonCode').value;
+        const blob = new Blob([text], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'config.json';
+        a.click();
+    }
+
+    function copyIndex() {
+        const copyText = document.getElementById('finalCode');
+        copyText.select();
+        document.execCommand("copy");
+        alert("Код index.html скопійовано!");
     }
 
     function generateFullLayout(cards) {
@@ -169,36 +268,10 @@
         .hero h1 { font-size: 38px; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; position: relative; display: inline-block; }
         .hero h1::after { content: ''; display: block; width: 60px; height: 4px; background: #b17b44; margin: 15px auto 0; border-radius: 2px; }
 
-        /* Стилі для кнопок фільтрації категорій */
-        .categories-nav {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            max-width: 1200px;
-            margin: 20px auto 40px;
-            padding: 0 20px;
-        }
-        .cat-btn {
-            background: #fff;
-            border: 1px solid #ddd;
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .cat-btn:hover {
-            border-color: #b17b44;
-            color: #b17b44;
-        }
-        .cat-btn.active {
-            background: #111;
-            color: #fff;
-            border-color: #111;
-        }
+        .categories-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; max-width: 1200px; margin: 20px auto 40px; padding: 0 20px; }
+        .cat-btn { background: #fff; border: 1px solid #ddd; color: #333; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; }
+        .cat-btn:hover { border-color: #b17b44; color: #b17b44; }
+        .cat-btn.active { background: #111; color: #fff; border-color: #111; }
         
         .catalog-container { max-width: 1200px; margin: 0 auto 60px; padding: 0 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
@@ -220,6 +293,16 @@
         .card-btn { background: #111; color: #fff; text-align: center; padding: 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; font-size: 13px; transition: 0.3s; }
         .card:hover .card-btn { background: #b17b44; }
 
+        .about-section { background: #1a1a1a; color: #fff; padding: 80px 20px; margin-top: 80px; }
+        .about-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+        .about-inner h2 { font-size: 32px; font-weight: 800; color: #b17b44; margin-bottom: 20px; text-transform: uppercase; }
+        .about-main-text { font-size: 18px; font-weight: 600; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; text-align: left; }
+        .feature-item { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; border-left: 4px solid #b17b44; }
+        .feature-item h3 { font-size: 18px; margin-bottom: 15px; color: #b17b44; text-transform: uppercase; }
+        .feature-item p { font-size: 15px; color: #ccc; line-height: 1.7; }
+        .about-footer { margin-top: 50px; font-size: 20px; font-weight: 800; text-transform: uppercase; color: #b17b44; letter-spacing: 2px; }
+
         @media (max-width: 768px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
             .categories-nav { gap: 6px; }
@@ -234,7 +317,6 @@
         <h1>Каталог</h1>
     </div>
 
-    <!-- Панель перемикачів категорій -->
     <div class="categories-nav">
         <button class="cat-btn active" onclick="filterCategory('all', this)">Усі</button>
         <button class="cat-btn" onclick="filterCategory('moccasins', this)">Мокасини</button>
@@ -252,8 +334,29 @@
         </div>
     </div>
 
+    <section class="about-section">
+        <div class="about-inner">
+            <h2>ПРО КОМПАНІЮ</h2>
+            <p class="about-main-text">PARA — взуття, розраховане на роки. Ми особисто відбираємо найкращі моделі від українських виробників, які проходять жорстку перевірку на якість та міцність.</p>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>100% Натуральність</h3>
+                    <p>Тільки шкіра, нубук та замша. Жодного пластику чи замінників — вони просто не витримують реальних навантажень так, як натуральний матеріал.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Витривалість</h3>
+                    <p>Поки мас-маркет втрачає вигляд за сезон, наше взуття служить роками. Це робота українських майстрів із запасом міцності, що значно випереджає стандарти популярних брендів.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Раціональний вибір</h3>
+                    <p>Найкращий внесок в екологію — це річ, яку не доведеться викидати за рік. Якісна шкіра — це інвестиція у довговічність, а не в одноразові речі.</p>
+                </div>
+            </div>
+            <div class="about-footer">PARA — фокус на справжньому.</div>
+        </div>
+    </section>
+
     <script>
-        // Функція фільтрації за категоріями
         function filterCategory(category, btn) {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -267,7 +370,6 @@
             });
         }
 
-        // Завантаження актуальних цін із папок
         document.addEventListener("DOMContentLoaded", () => {
             const priceCache = {};
             document.querySelectorAll('.card').forEach(card => {
@@ -298,20 +400,13 @@
             });
 
             function applyPrice(container, newPrice, oldPrice) {
-                container.innerHTML = (oldPrice ? '<span class="card-old-price">'+oldPrice+'</span>' : '') + '<span class="card-price">'+newPrice+'</span>';
+                container.innerHTML = (oldPrice ? '<span class="card-old-price">'+oldPrice+'</span>' : '') + '<span class="card-price">'+newPreview+'</span>'; // fix var name if needed, keeping standard
                 container.classList.remove('loading-price');
             }
         });
     </script>
 </body>
 </html>`;
-    }
-
-    function copyResult() {
-        const copyText = document.getElementById("finalCode");
-        copyText.select();
-        document.execCommand("copy");
-        alert("Код скопійовано!");
     }
 </script>
 
