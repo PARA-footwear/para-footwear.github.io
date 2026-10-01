@@ -1,9 +1,9 @@
 {
+  "boots": ["390", "A362", "P4", "323", "3391", "P3"],
   "moccasins": ["mocasins352", "N352"],
   "loafers": ["316"],
   "sneakers_low": ["319"],
   "sandals": ["N500"],
   "shoes": ["N342", "N344"],
-  "sneakers": [],
-  "boots": ["390", "A362", "P4", "323", "3391", "P3"]
+  "sneakers": []
 }
