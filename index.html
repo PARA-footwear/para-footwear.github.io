@@ -4,254 +4,381 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PARA footwear | Офіційний каталог</title>
+    <meta name="description" content="Каталог взуття PARA footwear: натуральна шкіра від українських виробників. Оплата при отриманні, примірка у відділенні.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <link rel="icon" href="favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="favicon.png">
     <style>
+        :root { --accent: #b17b44; --ink: #111; --text: #2b2b2b; --muted: #777; --panel: #f5f3f0; --line: #e2e0dc; --dark: #1a1a1a; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #fcfcfc; color: #333; line-height: 1.6; }
-        
-        header { background-color: #1a1a1a; color: #fff; padding: 22px 0; text-align: center; font-size: 26px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        header span { color: #b17b44; }
+        html, body { background: #fff; color: var(--text); line-height: 1.6; overflow-x: hidden; width: 100%; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-        .hero { text-align: center; padding: 50px 20px 20px; background-color: #fcfcfc; color: #111; }
-        .hero h1 { font-size: 38px; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; position: relative; display: inline-block; }
-        .hero h1::after { content: ''; display: block; width: 60px; height: 4px; background: #b17b44; margin: 15px auto 0; border-radius: 2px; }
+        header { position: sticky; top: 0; z-index: 100; background: var(--dark); color: #fff; padding: 14px 0; }
+        header.light { background: #fff; color: #111; border-bottom: 1px solid #eceae6; }
+        .header-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        .brand { display: block; text-decoration: none; color: inherit; }
+        .brand-text { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+        .brand-text span { color: var(--accent); }
+        .brand-img { display: none; }
+        .brand.has-logo .brand-img { display: block; height: 34px; width: auto; max-width: 58vw; object-fit: contain; }
+        .brand.has-logo .brand-text { display: none; }
+        .header-info { font-size: 13px; color: #ccc; font-weight: 500; }
+        header.light .header-info { color: #666; }
 
-        .categories-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; max-width: 1200px; margin: 20px auto 40px; padding: 0 20px; }
-        .cat-btn { background: #fff; border: 1px solid #ddd; color: #333; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s ease; }
-        .cat-btn:hover { border-color: #b17b44; color: #b17b44; }
-        .cat-btn.active { background: #111; color: #fff; border-color: #111; }
-        
-        .catalog-container { max-width: 1200px; margin: 0 auto 60px; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        
-        .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.06); transition: 0.3s; text-decoration: none; display: flex; flex-direction: column; border: 1px solid #f0f0f0; }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.12); }
-        
-        .card-img-wrapper { position: relative; width: 100%; aspect-ratio: 4/5; overflow: hidden; background: #f9f9f9; padding: 15px; }
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
-        
-        .card-info { padding: 20px; border-top: 1px solid #f9f9f9; flex-grow: 1; display: flex; flex-direction: column; }
-        
-        /* Основне назву робимо менш помітною (блеклим і меншим шрифтом) */
-        .card-title { font-size: 13px; color: #777; font-weight: 500; margin-bottom: 8px; }
-        
-        /* Назва кольору/варіанта тепер головна і дуже помітна */
-        .card-color { font-size: 16px; color: #111; font-weight: 800; margin-bottom: 15px; line-height: 1.3; }
-        
-        .card-price-container { display: flex; align-items: baseline; gap: 10px; margin-top: auto; margin-bottom: 15px; min-height: 30px; }
-        .card-price { font-size: 22px; color: #d32f2f; font-weight: 800; }
-        .card-old-price { font-size: 15px; color: #999; text-decoration: line-through; }
-        
-        .card-btn { background: #111; color: #fff; text-align: center; padding: 12px; border-radius: 6px; font-weight: 700; text-transform: uppercase; font-size: 13px; transition: 0.3s; }
-        .card:hover .card-btn { background: #b17b44; }
+        .hero { max-width: 1200px; margin: 0 auto; padding: 44px 20px 0; }
+        .hero h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); line-height: 1.15; }
+        .hero p { margin-top: 8px; color: var(--muted); font-size: 16px; max-width: 56ch; }
+        .trust { max-width: 1200px; margin: 22px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .trust div { background: var(--panel); border-radius: 14px; padding: 12px 14px; line-height: 1.35; }
+        .trust b { display: block; font-size: 13px; color: var(--ink); }
+        .trust span { font-size: 12px; color: var(--muted); }
 
-        .loading-text { text-align: center; grid-column: 1 / -1; font-size: 18px; color: #666; padding: 40px; }
+        .toolbar { max-width: 1200px; margin: 26px auto 0; padding: 0 20px; display: flex; gap: 12px; align-items: center; }
+        .search { position: relative; flex: 1; min-width: 0; }
+        .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: none; stroke: #999; stroke-width: 2; stroke-linecap: round; }
+        .search input { width: 100%; padding: 13px 14px 13px 42px; border: 1px solid var(--line); border-radius: 14px; font-size: 16px; background: #fff; outline: none; transition: 0.2s; }
+        .sort { padding: 13px 12px; border: 1px solid var(--line); border-radius: 14px; font-size: 15px; background: #fff; outline: none; cursor: pointer; max-width: 46%; }
+        .search input:focus, .sort:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(177,123,68,0.12); }
 
-        .about-section { background: #1a1a1a; color: #fff; padding: 80px 20px; margin-top: 80px; }
-        .about-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
-        .about-inner h2 { font-size: 32px; font-weight: 800; color: #b17b44; margin-bottom: 20px; text-transform: uppercase; }
-        .about-main-text { font-size: 18px; font-weight: 600; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; text-align: left; }
-        .feature-item { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; border-left: 4px solid #b17b44; }
-        .feature-item h3 { font-size: 18px; margin-bottom: 15px; color: #b17b44; text-transform: uppercase; }
-        .feature-item p { font-size: 15px; color: #ccc; line-height: 1.7; }
-        .about-footer { margin-top: 50px; font-size: 20px; font-weight: 800; text-transform: uppercase; color: #b17b44; letter-spacing: 2px; }
+        .chips { max-width: 1200px; margin: 16px auto 0; padding: 0 20px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+        .chips::-webkit-scrollbar { display: none; }
+        .chip { flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: #333; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit; }
+        .chip small { color: #999; font-weight: 600; margin-left: 5px; font-size: 12px; }
+        .chip:hover { border-color: var(--accent); color: var(--accent); }
+        .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+        .chip.active small { color: #bbb; }
+
+        .meta { max-width: 1200px; margin: 18px auto 12px; padding: 0 20px; font-size: 13px; color: var(--muted); min-height: 20px; }
+        .catalog { max-width: 1200px; margin: 0 auto; padding: 0 20px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+
+        .card { display: flex; flex-direction: column; text-decoration: none; color: inherit; min-width: 0; }
+        .card-media { position: relative; aspect-ratio: 4 / 5; background: var(--panel); border-radius: 20px; overflow: hidden; padding: 14px; }
+        .card-media img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s ease; }
+        .card:hover .card-media img { transform: scale(1.04); }
+        .badge { position: absolute; top: 12px; left: 12px; background: #fff; color: #b3261e; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+        .card-body { padding: 12px 4px 0; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .card-title { font-size: 12px; color: var(--muted); font-weight: 500; line-height: 1.35; }
+        .card-color { font-size: 15px; color: var(--ink); font-weight: 800; line-height: 1.3; }
+        .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 10px; }
+        .card-price { font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; }
+        .card-old { font-size: 13px; color: #999; text-decoration: line-through; margin-left: 8px; }
+        .card-go { width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.2s; flex-shrink: 0; }
+        .card:hover .card-go { background: var(--accent); }
+
+        .sk .card-media, .sk i { background: linear-gradient(90deg, #f1efec 25%, #f8f6f3 50%, #f1efec 75%); background-size: 200% 100%; animation: sh 1.3s infinite; }
+        .sk i { display: block; height: 12px; border-radius: 6px; margin-top: 10px; }
+        @keyframes sh { to { background-position: -200% 0; } }
+
+        .state { grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--muted); }
+        .state button { margin-top: 14px; padding: 12px 22px; border: none; background: var(--ink); color: #fff; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: inherit; font-size: 15px; }
+
+        .about { background: var(--dark); color: #fff; padding: 64px 20px; margin-top: 56px; }
+        .about-in { max-width: 1100px; margin: 0 auto; text-align: center; }
+        .about h2 { font-size: 30px; font-weight: 800; color: var(--accent); letter-spacing: -0.3px; margin-bottom: 16px; }
+        .about-main { font-size: 17px; font-weight: 600; max-width: 760px; margin: 0 auto; line-height: 1.65; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 40px; text-align: left; }
+        .feature { background: rgba(255,255,255,0.06); padding: 26px; border-radius: 18px; }
+        .feature h3 { font-size: 17px; margin-bottom: 10px; color: #fff; }
+        .feature p { font-size: 14.5px; color: #bdbdbd; line-height: 1.7; }
+        .about-foot { margin-top: 40px; font-size: 16px; font-weight: 800; color: var(--accent); }
+        footer { text-align: center; padding: 20px; font-size: 12px; color: #8a8a8a; background: var(--dark); border-top: 1px solid #2a2a2a; }
 
         @media (max-width: 768px) {
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .categories-nav { gap: 6px; }
-            .cat-btn { padding: 8px 14px; font-size: 12px; }
+            .header-info { display: none; }
+            .hero { padding-top: 28px; }
+            .hero h1 { font-size: 28px; }
+            .hero p { font-size: 15px; }
+            .trust { gap: 8px; }
+            .trust div { padding: 10px 8px; text-align: center; }
+            .trust b { font-size: 12px; }
+            .trust span { font-size: 11px; }
+            .toolbar { margin-top: 20px; gap: 8px; }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
+            .card-media { border-radius: 16px; padding: 8px; }
+            .card-price { font-size: 17px; }
+            .card-old { font-size: 12px; margin-left: 6px; }
+            .card-go { width: 30px; height: 30px; font-size: 16px; }
+            .about { padding: 48px 20px; }
         }
     </style>
 </head>
 <body>
-    <header>PARA <span>footwear</span></header>
-    
-    <div class="hero">
-        <h1>Каталог</h1>
-    </div>
-
-    <div class="categories-nav">
-        <button class="cat-btn" data-cat="all" onclick="filterCategory('all', this)">Усі</button>
-        <button class="cat-btn" data-cat="moccasins" onclick="filterCategory('moccasins', this)">Мокасини</button>
-        <button class="cat-btn" data-cat="loafers" onclick="filterCategory('loafers', this)">Лофери</button>
-        <button class="cat-btn" data-cat="sneakers_low" onclick="filterCategory('sneakers_low', this)">Кеди</button>
-        <button class="cat-btn" data-cat="sandals" onclick="filterCategory('sandals', this)">Сандалі</button>
-        <button class="cat-btn" data-cat="shoes" onclick="filterCategory('shoes', this)">Туфлі</button>
-        <button class="cat-btn" data-cat="sneakers" onclick="filterCategory('sneakers', this)">Кросівки</button>
-        <button class="cat-btn" data-cat="boots" onclick="filterCategory('boots', this)">Черевики</button>
-    </div>
-
-    <div class="catalog-container">
-        <div class="grid" id="productGrid">
-            <div class="loading-text">⏳ Завантаження каталогу...</div>
+    <header id="siteHeader">
+        <div class="header-inner">
+            <a class="brand" id="brand" href="./" aria-label="PARA footwear">
+                <img class="brand-img" id="brandImg" alt="PARA footwear">
+                <span class="brand-text">PARA <span>footwear</span></span>
+            </a>
+            <div class="header-info">⌚ Щодня 10:00 - 20:00</div>
         </div>
+    </header>
+
+    <section class="hero">
+        <h1>Каталог взуття</h1>
+        <p>Натуральна шкіра від українських виробників</p>
+    </section>
+
+    <div class="trust">
+        <div><b>Оплата при отриманні</b><span>без передоплат</span></div>
+        <div><b>Примірка</b><span>у відділенні пошти</span></div>
+        <div><b>Обмін 14 днів</b><span>або повернення коштів</span></div>
     </div>
 
-    <section class="about-section">
-        <div class="about-inner">
-            <h2>ПРО КОМПАНІЮ</h2>
-            <p class="about-main-text">PARA — взуття, розраховане на роки. Ми особисто відбираємо найкращі моделі від українських виробників, які проходять жорстку перевірку на якість та міцність.</p>
-            <div class="features-grid">
-                <div class="feature-item">
-                    <h3>100% Натуральність</h3>
+    <div class="toolbar">
+        <div class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+            <label class="sr-only" for="searchInput">Пошук</label>
+            <input type="search" id="searchInput" placeholder="Пошук моделі" autocomplete="off">
+        </div>
+        <label class="sr-only" for="sortSelect">Сортування</label>
+        <select class="sort" id="sortSelect">
+            <option value="default">Сортування</option>
+            <option value="asc">Від дешевих</option>
+            <option value="desc">Від дорогих</option>
+        </select>
+    </div>
+
+    <nav class="chips" id="chips" aria-label="Категорії"></nav>
+    <div class="meta" id="meta"></div>
+
+    <main class="catalog">
+        <div class="grid" id="productGrid"></div>
+    </main>
+
+    <section class="about">
+        <div class="about-in">
+            <h2>Про компанію</h2>
+            <p class="about-main">PARA — взуття, розраховане на роки. Ми особисто відбираємо найкращі моделі від українських виробників, які проходять жорстку перевірку на якість та міцність.</p>
+            <div class="features">
+                <div class="feature">
+                    <h3>100% натуральність</h3>
                     <p>Тільки шкіра, нубук та замша. Жодного пластику чи замінників — вони просто не витримують реальних навантажень так, як натуральний матеріал.</p>
                 </div>
-                <div class="feature-item">
+                <div class="feature">
                     <h3>Витривалість</h3>
                     <p>Поки мас-маркет втрачає вигляд за сезон, наше взуття служить роками. Це робота українських майстрів із запасом міцності, що значно випереджає стандарти популярних брендів.</p>
                 </div>
-                <div class="feature-item">
+                <div class="feature">
                     <h3>Раціональний вибір</h3>
                     <p>Найкращий внесок в екологію — це річ, яку не доведеться викидати за рік. Якісна шкіра — це інвестиція у довговічність, а не в одноразові речі.</p>
                 </div>
             </div>
-            <div class="about-footer">PARA — фокус на справжньому.</div>
+            <div class="about-foot">PARA — фокус на справжньому.</div>
         </div>
     </section>
+    <footer>© <span id="year"></span> PARA footwear</footer>
 
     <script>
-        let currentCategory = 'all';
+        // ===== Налаштування (можна міняти) =====
+        const SETTINGS = {
+            logo: 'logo.svg',        // файл логотипа в корені, поруч з index.html; '' — текстовий логотип
+            headerTheme: 'dark',     // 'dark' або 'light' (світла шапка — для темного логотипа)
+            labels: { moccasins: 'Мокасини', loafers: 'Лофери', sneakers_low: 'Кеди', sandals: 'Сандалі', shoes: 'Туфлі', sneakers: 'Кросівки', boots: 'Черевики' }
+        };
+        // ========================================
 
-        function filterCategory(category, btnElement) {
-            currentCategory = category;
-            
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            if (btnElement) {
-                btnElement.classList.add('active');
-            } else {
-                const targetBtn = document.querySelector(`.cat-btn[data-cat="${category}"]`);
-                if (targetBtn) targetBtn.classList.add('active');
-            }
+        const CACHE_KEY = 'para_catalog_v2';
+        const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="100%" height="100%" fill="#f5f3f0"/><text x="50%" y="50%" fill="#b17b44" font-family="sans-serif" font-size="28" font-weight="700" text-anchor="middle">PARA</text></svg>');
+        const state = { cat: decodeURIComponent(location.hash.slice(1)) || 'all', q: '', sort: 'default', config: {}, products: {}, loading: true, failed: false };
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const num = t => parseInt(String(t || '').replace(/\D/g, ''), 10) || 0;
+        const label = k => SETTINGS.labels[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, ' '));
 
-            document.querySelectorAll('.card').forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
+        function folderMap() {
+            const cats = {}, order = [];
+            for (const [cat, folders] of Object.entries(state.config)) {
+                if (!Array.isArray(folders)) continue;
+                for (const f of folders) {
+                    if (!cats[f]) { cats[f] = []; order.push(f); }
+                    if (!cats[f].includes(cat)) cats[f].push(cat);
                 }
-            });
-
-            if (category === 'all') {
-                history.pushState("", document.title, window.location.pathname + window.location.search);
-            } else {
-                history.pushState(null, null, '#' + category);
             }
+            return { cats, order };
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            const grid = document.getElementById('productGrid');
-            try {
-                const res = await fetch('./config.json');
-                if (!res.ok) throw new Error("Не вдалося завантажити config.json");
-                const config = await res.json();
+        function imgUrl(folder, src) {
+            if (!src) return PLACEHOLDER;
+            if (/^(https?:)?\/\//.test(src) || src.startsWith('/') || src.startsWith('data:')) return src;
+            return folder + '/' + src.replace(/^\.\//, '');
+        }
 
-                let allCardsHTML = "";
-                const processedFolders = new Set();
-
-                for (const [category, folders] of Object.entries(config)) {
-                    if (!Array.isArray(folders)) continue;
-
-                    for (const folder of folders) {
-                        if (processedFolders.has(folder)) continue;
-                        processedFolders.add(folder);
-
-                        try {
-                            const productRes = await fetch(`./${folder}/index.html`);
-                            if (!productRes.ok) continue;
-                            const html = await productRes.text();
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-
-                            const modelName = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : "Взуття PARA";
-
-                            const fetchedPriceEl = doc.querySelector('.price-new') || doc.querySelector('.st-new');
-                            const fetchedOldPriceEl = doc.querySelector('.price-old') || doc.querySelector('.st-old');
-                            const newP = fetchedPriceEl ? fetchedPriceEl.textContent : '';
-                            const oldP = fetchedOldPriceEl ? fetchedOldPriceEl.textContent : '';
-
-                            const variants = [];
-                            const seenKeys = new Set();
-                            const jsText = html.match(/const productImages = \{([\s\S]*?)\};/);
-                            
-                            if (jsText) {
-                                const imgData = {};
-                                jsText[1].split('\n').forEach(line => {
-                                    const match = line.match(/'(color_\d+)':\s*\[\s*['"]([^'"]+)['"]/);
-                                    if (match) imgData[match[1]] = match[2];
-                                });
-
-                                doc.querySelectorAll('.color-circle').forEach(circle => {
-                                    const onclick = circle.getAttribute('onclick');
-                                    const match = onclick && onclick.match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
-                                    if (match) {
-                                        const key = match[2];
-                                        if (!seenKeys.has(key)) {
-                                            seenKeys.add(key);
-                                            variants.push({
-                                                shortName: circle.getAttribute('title') || match[1],
-                                                key: key,
-                                                firstImg: imgData[key] || ""
-                                            });
-                                        }
-                                    }
-                                });
-                            }
-
-                            if (variants.length === 0) {
-                                const firstImgTag = doc.querySelector('img');
-                                const imgSrc = firstImgTag ? firstImgTag.getAttribute('src') : '';
-                                variants.push({
-                                    shortName: 'Стандарт',
-                                    key: 'color_0',
-                                    firstImg: imgSrc.replace(/^\.\//, '')
-                                });
-                            }
-
-                            variants.forEach((v, index) => {
-                                allCardsHTML += `
-                                <a href="${folder}/?v=${index + 1}" class="card" data-folder="${folder}" data-category="${category}" style="display: none;">
-                                    <div class="card-img-wrapper">
-                                        <img src="${folder}/${v.firstImg}" alt="${modelName}" onerror="this.src='https://via.placeholder.com/400x500?text=PARA'">
-                                    </div>
-                                    <div class="card-info">
-                                        <div class="card-title">${modelName}</div>
-                                        <div class="card-color">${v.shortName}</div>
-                                        <div class="card-price-container">
-                                            ${oldP ? '<span class="card-old-price">' + oldP + '</span>' : ''}
-                                            <span class="card-price">${newP}</span>
-                                        </div>
-                                        <div class="card-btn">Детальніше</div>
-                                    </div>
-                                </a>`;
-                            });
-
-                        } catch (err) {
-                            console.error("Помилка з папкою " + folder, err);
-                        }
-                    }
-                }
-
-                grid.innerHTML = allCardsHTML || '<div class="loading-text">Товари не знайдені в config.json</div>';
-
-                const hash = window.location.hash.replace('#', '');
-                const validCategories = ['moccasins', 'loafers', 'sneakers_low', 'sandals', 'shoes', 'sneakers', 'boots'];
-                
-                if (validCategories.includes(hash)) {
-                    filterCategory(hash, null);
-                } else {
-                    filterCategory('all', document.querySelector('.cat-btn[data-cat="all"]'));
-                }
-
-            } catch (e) {
-                grid.innerHTML = '<div class="loading-text" style="color: #d32f2f;">Помилка завантаження config.json</div>';
-                console.error(e);
+        function buildCards() {
+            const { cats, order } = folderMap();
+            const cards = [];
+            for (const f of order) {
+                const p = state.products[f];
+                if (!p) continue;
+                p.variants.forEach((v, i) => {
+                    const pn = num(p.price), on = num(p.old);
+                    cards.push({
+                        href: f + '/?v=' + (i + 1), cats: cats[f], name: p.name, color: v.name,
+                        img: imgUrl(f, v.img), price: p.price, old: on > pn ? p.old : '', pn,
+                        discount: on > pn && pn > 0 ? Math.round((1 - pn / on) * 100) : 0
+                    });
+                });
             }
+            return cards;
+        }
+
+        function render() {
+            const all = buildCards();
+            const catKeys = Object.keys(state.config).filter(k => Array.isArray(state.config[k]));
+            if (!state.loading && state.cat !== 'all' && !catKeys.includes(state.cat)) state.cat = 'all';
+
+            const counts = {};
+            all.forEach(c => c.cats.forEach(k => counts[k] = (counts[k] || 0) + 1));
+            let chips = `<button class="chip ${state.cat === 'all' ? 'active' : ''}" data-cat="all" aria-pressed="${state.cat === 'all'}">Усі<small>${all.length}</small></button>`;
+            catKeys.forEach(k => {
+                if (!state.loading && !counts[k]) return;
+                chips += `<button class="chip ${state.cat === k ? 'active' : ''}" data-cat="${esc(k)}" aria-pressed="${state.cat === k}">${esc(label(k))}${counts[k] ? '<small>' + counts[k] + '</small>' : ''}</button>`;
+            });
+            $('chips').innerHTML = chips;
+
+            const words = state.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+            let list = all.filter(c => (state.cat === 'all' || c.cats.includes(state.cat)) &&
+                words.every(w => (c.name + ' ' + c.color + ' ' + c.cats.map(label).join(' ')).toLowerCase().includes(w)));
+            if (state.sort !== 'default') {
+                const asc = state.sort === 'asc';
+                list = list.slice().sort((a, b) => {
+                    if (!a.pn && !b.pn) return 0;
+                    if (!a.pn) return 1;          // без ціни — в кінець
+                    if (!b.pn) return -1;
+                    return asc ? a.pn - b.pn : b.pn - a.pn;
+                });
+            }
+
+            let html = list.map(c => `
+                <a href="${esc(c.href)}" class="card">
+                    <div class="card-media">
+                        <img src="${esc(c.img)}" alt="${esc(c.name)} — ${esc(c.color)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=PLACEHOLDER">
+                        ${c.discount >= 1 ? '<span class="badge">−' + c.discount + '%</span>' : ''}
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">${esc(c.name)}</div>
+                        <div class="card-color">${esc(c.color)}</div>
+                        <div class="card-bottom">
+                            <div><span class="card-price">${esc(c.price)}</span>${c.old ? '<span class="card-old">' + esc(c.old) + '</span>' : ''}</div>
+                            <span class="card-go" aria-hidden="true">›</span>
+                        </div>
+                    </div>
+                </a>`).join('');
+
+            if (state.loading) {
+                html += Array(all.length ? 2 : 8).fill('<div class="card sk"><div class="card-media"></div><div class="card-body"><i style="width:50%"></i><i style="width:80%"></i><i style="width:35%"></i></div></div>').join('');
+            } else if (state.failed) {
+                html = '<div class="state">Не вдалося завантажити каталог.<br><button onclick="location.reload()">Спробувати ще раз</button></div>';
+            } else if (!all.length) {
+                html = '<div class="state">Товари не знайдені в config.json</div>';
+            } else if (!list.length) {
+                html = '<div class="state">Нічого не знайдено.<br><button id="resetBtn">Скинути пошук і фільтри</button></div>';
+            }
+            $('productGrid').innerHTML = html;
+            $('meta').textContent = state.failed ? '' : (state.loading && !all.length) ? 'Завантажуємо каталог…' : (list.length ? 'Знайдено: ' + list.length : '');
+        }
+
+        function parseProduct(html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const t = el => el ? el.textContent.trim() : '';
+            const name = t(doc.querySelector('h1')) || 'Взуття PARA';
+            const price = t(doc.querySelector('.price-new') || doc.querySelector('.st-new'));
+            const old = t(doc.querySelector('.price-old') || doc.querySelector('.st-old'));
+
+            const imgs = {};
+            const block = html.match(/const productImages\s*=\s*\{([\s\S]*?)\};/);
+            if (block) {
+                const re = /['"](color_\d+)['"]\s*:\s*\[\s*['"]([^'"]+)['"]/g;
+                let m;
+                while ((m = re.exec(block[1]))) imgs[m[1]] = m[2];
+            }
+            const variants = [], seen = new Set();
+            doc.querySelectorAll('.color-circle').forEach(c => {
+                const m = (c.getAttribute('onclick') || '').match(/selectColor\('([^']+)',\s*'([^']+)'\)/);
+                if (m && !seen.has(m[2])) {
+                    seen.add(m[2]);
+                    variants.push({ name: c.getAttribute('title') || m[1], img: imgs[m[2]] || '' });
+                }
+            });
+            if (!variants.length) {
+                const first = Object.values(imgs)[0] || (Array.from(doc.querySelectorAll('img')).map(i => i.getAttribute('src')).find(Boolean) || '');
+                variants.push({ name: 'Стандарт', img: first });
+            }
+            return { name, price, old, variants };
+        }
+
+        async function runPool(items, limit, worker) {
+            let i = 0;
+            await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+                while (i < items.length) await worker(items[i++]);
+            }));
+        }
+
+        function loadCache() {
+            try {
+                const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+                if (c && c.config && c.products && Date.now() - c.t < 14 * 864e5) { state.config = c.config; state.products = c.products; return true; }
+            } catch (e) {}
+            return false;
+        }
+        function saveCache() {
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), config: state.config, products: state.products })); } catch (e) {}
+        }
+
+        async function init() {
+            const hadCache = loadCache();
+            render();
+            try {
+                const r = await fetch('./config.json', { cache: 'no-cache' });
+                if (!r.ok) throw new Error('config.json ' + r.status);
+                state.config = await r.json();
+            } catch (e) {
+                console.error(e);
+                if (!hadCache) { state.failed = true; state.loading = false; render(); return; }
+            }
+            const { order } = folderMap();
+            Object.keys(state.products).forEach(f => { if (!order.includes(f)) delete state.products[f]; });
+            render();
+
+            let queued = 0;
+            const schedule = () => { if (!queued) queued = requestAnimationFrame(() => { queued = 0; render(); }); };
+            await runPool(order, 6, async f => {
+                try {
+                    const r = await fetch('./' + f + '/index.html');
+                    if (r.status === 404) { if (state.products[f]) { delete state.products[f]; schedule(); } return; }
+                    if (!r.ok) return;
+                    const p = parseProduct(await r.text());
+                    if (JSON.stringify(p) !== JSON.stringify(state.products[f])) { state.products[f] = p; schedule(); }
+                } catch (e) { console.error('Помилка з папкою ' + f, e); }
+            });
+            state.loading = false;
+            saveCache();
+            render();
+        }
+
+        function setCategory(cat) {
+            state.cat = cat;
+            history.replaceState(null, '', cat === 'all' ? location.pathname + location.search : '#' + cat);
+            render();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            $('year').textContent = new Date().getFullYear();
+            if (SETTINGS.headerTheme === 'light') $('siteHeader').classList.add('light');
+            if (SETTINGS.logo) { $('brandImg').onload = () => $('brand').classList.add('has-logo'); $('brandImg').src = SETTINGS.logo; }
+            else $('brandImg').remove();
+
+            $('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) setCategory(b.dataset.cat); });
+            $('productGrid').addEventListener('click', e => {
+                if (e.target.id === 'resetBtn') { state.q = ''; $('searchInput').value = ''; setCategory('all'); }
+            });
+            $('searchInput').addEventListener('input', e => { state.q = e.target.value; render(); });
+            $('sortSelect').addEventListener('change', e => { state.sort = e.target.value; render(); });
+            window.addEventListener('hashchange', () => { state.cat = decodeURIComponent(location.hash.slice(1)) || 'all'; render(); });
+            init();
         });
     </script>
 </body>
