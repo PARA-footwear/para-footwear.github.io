@@ -376,6 +376,17 @@
         .size-unsure-btn.active { background: #111; border: 1px solid #111; color: #fff; }
         #orderModal .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: #fff; font-family: inherit; outline: none; transition: 0.2s; }
         #orderModal .form-group select:focus { border-color: #b17b44; box-shadow: 0 0 0 3px rgba(177,123,68,0.12); }
+
+        /* ===== Інструкція «Як виміряти ногу» ===== */
+        #sizeGuideModal .measure-modal { max-width: 600px; text-align: left; }
+        .measure-wrap { display: flex; gap: 22px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+        .measure-wrap svg { width: 220px; max-width: 100%; height: auto; flex: 0 0 auto; background: #f5f3f0; border-radius: 16px; padding: 8px; }
+        .measure-steps { flex: 1 1 260px; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: #444; margin: 0; }
+        .measure-steps li { margin-bottom: 8px; }
+        .measure-steps b { color: #111; }
+        .measure-note { margin-top: 14px; padding: 12px 14px; background: #fbf3ea; border-radius: 12px; font-size: 13.5px; line-height: 1.5; color: #6b5230; }
+        .measure-cta { display: block; width: 100%; margin-top: 14px; padding: 15px; border: none; border-radius: 12px; background: #111; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .measure-cta:hover { background: #b17b44; }
     </style>
 
 
@@ -450,7 +461,7 @@
             <div id="sizeSection" style="padding: 10px; border-radius: 8px; margin-bottom: 10px; transition: 0.5s;">
                 <div class="selector-header">
                     <span class="selector-title">Оберіть розмір: <span id="sizeText" style="font-weight:normal; color:#b17b44">не обрано</span></span>
-                    <span class="size-link" onclick="toggleSizeModal(true, event)">📏 Таблиця розмірів</span>
+                    <span class="size-link" onclick="toggleSizeModal(true, event)">📏 Як виміряти ногу</span>
                 </div>
                 <div class="size-options">
                     <button class="size-btn" onclick="selectSize(this)">39 (25.5см)</button>
@@ -658,10 +669,33 @@
     </div>
 
     <div id="sizeGuideModal" class="modal" onclick="toggleSizeModal(false, event)">
-        <div class="modal-content" onclick="event.stopPropagation()" style="text-align: center;">
+        <div class="modal-content measure-modal" onclick="event.stopPropagation()">
             <span class="close-modal" onclick="toggleSizeModal(false, event)">×</span>
-            <h3 style="font-size: 22px; font-weight: 800;">Таблиця розмірів</h3>
-            <img src="size-guide.jpg" alt="Таблиця розмірів" style="width: 100%; height: auto; border-radius: 8px; margin-top: 15px; display: block;">
+            <h3 style="font-size: 22px; font-weight: 800;">Як виміряти ногу</h3>
+            <div class="measure-wrap">
+                <svg viewBox="0 0 280 300" role="img" aria-label="Схема: п'ята впирається в стіну, на папері відмічено найдовший палець, між ними вимірюється довжина стопи в сантиметрах">
+                    <rect x="30" y="34" width="150" height="250" rx="4" fill="#fff" stroke="#d8d4cd" stroke-width="1.5"></rect>
+                    <rect x="22" y="22" width="166" height="12" rx="2" fill="#2b2b2b"></rect>
+                    <text x="105" y="14" text-anchor="middle" font-size="12" font-weight="600" fill="#777">стіна</text>
+                    <path d="M105 40 C125 40 136 54 135 78 C134 104 126 122 130 146 C134 172 150 186 148 216 C146 244 126 256 105 256 C84 256 64 244 62 216 C60 186 76 172 80 146 C84 122 76 104 75 78 C74 54 85 40 105 40 Z" fill="#f1e3d0" stroke="#b17b44" stroke-width="2.5"></path>
+                    <line x1="40" y1="256" x2="172" y2="256" stroke="#d32f2f" stroke-width="2.5" stroke-dasharray="6 4"></line>
+                    <text x="105" y="276" text-anchor="middle" font-size="12" font-weight="600" fill="#d32f2f">найдовший палець</text>
+                    <line x1="214" y1="38" x2="214" y2="254" stroke="#111" stroke-width="2"></line>
+                    <polygon points="214,36 208,48 220,48" fill="#111"></polygon>
+                    <polygon points="214,256 208,244 220,244" fill="#111"></polygon>
+                    <text transform="translate(238 146) rotate(90)" text-anchor="middle" font-size="13" font-weight="700" fill="#111">довжина стопи, см</text>
+                </svg>
+                <ol class="measure-steps">
+                    <li>Покладіть аркуш паперу на рівну підлогу так, щоб один край впирався в стіну.</li>
+                    <li>Станьте на аркуш босою ногою: <b>п'ята впритул до стіни</b>, вага тіла рівномірно на обох ногах.</li>
+                    <li>Олівцем, тримаючи його вертикально, позначте на папері <b>найдовший палець</b>.</li>
+                    <li>Виміряйте лінійкою відстань від стіни до відмітки. Це <b>довжина стопи в сантиметрах</b>.</li>
+                    <li>Виміряйте обидві ноги й візьміть більше значення. Найкраще міряти ввечері, коли стопа трохи збільшується.</li>
+                    <li>Порівняйте результат із довжиною в дужках біля розміру, наприклад «41 (27см)».</li>
+                </ol>
+            </div>
+            <div class="measure-note">Не впевнені або результат між двома розмірами? Нічого страшного: оберіть «Не впевнений(а)», і менеджер зателефонує та допоможе підібрати розмір.</div>
+            <button type="button" class="measure-cta" onclick="selectSizeUnsure(); toggleSizeModal(false, event)">Не впевнений(а) — допоможіть обрати</button>
         </div>
     </div>
 
@@ -1390,4 +1424,5 @@
     }
     pageReady = true;
 </script>
+
 
