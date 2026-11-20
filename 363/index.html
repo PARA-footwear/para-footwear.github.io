@@ -369,6 +369,13 @@
             #lightboxImage { max-width: calc(100vw - 230px); max-height: 94vh; } /* поля під стрілки */
             .lb-arrow { display: flex; }
         }
+
+        /* ===== Розмір не обов'язковий ===== */
+        .size-unsure-btn { grid-column: 1 / -1; flex: 1 0 100%; padding: 12px; border: 1px dashed #c9b79f; border-radius: 12px; background: #fff; font-size: 14px; font-weight: 600; color: #8a6a43; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .size-unsure-btn:hover { border-color: #b17b44; color: #b17b44; }
+        .size-unsure-btn.active { background: #111; border: 1px solid #111; color: #fff; }
+        #orderModal .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: #fff; font-family: inherit; outline: none; transition: 0.2s; }
+        #orderModal .form-group select:focus { border-color: #b17b44; box-shadow: 0 0 0 3px rgba(177,123,68,0.12); }
     </style>
 
 
@@ -453,6 +460,7 @@
                     <button class="size-btn" onclick="selectSize(this)">44 (28,5см)</button>
                     <button class="size-btn" onclick="selectSize(this)">45 (29.5см)</button>
                     
+                    <button type="button" class="size-unsure-btn" onclick="selectSizeUnsure()">Не впевнений(а) у розмірі — допоможемо підібрати</button>
                 </div>
             </div>
 
@@ -567,6 +575,11 @@
             <div id="orderSummary" class="order-summary"></div>
 
             <form onsubmit="sendFinalOrder(event)" id="mainForm" novalidate="">
+                <div class="form-group" id="g_size">
+                    <label for="orderSize">Розмір</label>
+                    <select id="orderSize" onchange="onOrderSizeChange()"></select>
+                    <div class="np-hint" id="sizeHint" style="display:none;">📏 Менеджер зателефонує і допоможе підібрати розмір. Підготуйте довжину стопи в сантиметрах.</div>
+                </div>
                 <div class="name-row">
                     <div class="form-group" id="g_first">
                         <label for="custFirstName">Ім'я *</label>
@@ -676,6 +689,7 @@
     let activeColorKey = 'color_0';
     let activeColorName = 'Чорна шкіра 363f';
     let activeSize = '';
+    const SIZE_HELP = 'Не впевнений(а) — допоможіть обрати';
     let currentSlideIndex = 0;
 
     let npSelectedCityRef = '';
@@ -893,6 +907,8 @@
 
     function selectSize(btn) {
         document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+        const unsure = document.querySelector('.size-unsure-btn');
+        if (unsure) unsure.classList.remove('active');
         btn.classList.add('active');
         activeSize = btn.innerText;
         const sizeText = document.getElementById('sizeText');
@@ -901,20 +917,58 @@
         document.getElementById('sizeSection').style.backgroundColor = 'transparent';
     }
 
+    function isSizeHelp() { return !activeSize || activeSize === SIZE_HELP; }
+    function sizeSummary() { return isSizeHelp() ? 'розмір підберемо разом' : 'розмір ' + activeSize; }
+    function selectSizeUnsure() {
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+        const unsure = document.querySelector('.size-unsure-btn');
+        if (unsure) unsure.classList.add('active');
+        activeSize = SIZE_HELP;
+        const sizeText = document.getElementById('sizeText');
+        sizeText.innerText = 'допоможемо підібрати';
+        sizeText.style.color = '#111';
+        document.getElementById('sizeSection').style.backgroundColor = 'transparent';
+    }
+    function buildOrderSizeSelect() {
+        const sel = document.getElementById('orderSize');
+        sel.innerHTML = '';
+        document.querySelectorAll('.size-btn').forEach(b => {
+            const o = document.createElement('option');
+            o.value = o.textContent = b.innerText.trim();
+            sel.appendChild(o);
+        });
+        const h = document.createElement('option');
+        h.value = SIZE_HELP;
+        h.textContent = 'Не впевнений(а) — допоможіть';
+        sel.appendChild(h);
+        const cur = (activeSize || '').trim();
+        sel.value = Array.from(sel.options).some(o => o.value === cur) ? cur : SIZE_HELP;
+        updateSizeHint();
+    }
+    function updateSizeHint() {
+        document.getElementById('sizeHint').style.display = (document.getElementById('orderSize').value === SIZE_HELP) ? 'block' : 'none';
+    }
+    function onOrderSizeChange() {
+        const v = document.getElementById('orderSize').value;
+        if (v === SIZE_HELP) selectSizeUnsure();
+        else {
+            const b = Array.from(document.querySelectorAll('.size-btn')).find(x => x.innerText.trim() === v);
+            if (b) selectSize(b);
+        }
+        const el = document.getElementById('orderSummarySize');
+        if (el) el.textContent = sizeSummary();
+        updateSizeHint();
+    }
+    function sizeForOrder() {
+        const v = (document.getElementById('orderSize').value || '').trim();
+        return (!v || v === SIZE_HELP) ? '❓ НЕ ОБРАНО: допомогти підібрати, запитати довжину стопи (см)' : v;
+    }
     function toggleFaq(el) {
         const item = el.parentElement;
         item.classList.toggle('active');
     }
 
     function openOrderModal() { 
-        if(!activeSize) { 
-            const sizeBlock = document.getElementById('sizeSection');
-            sizeBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            sizeBlock.style.backgroundColor = '#ffe0e0';
-            setTimeout(() => sizeBlock.style.backgroundColor = 'transparent', 1500);
-            return; 
-        } 
-        
         const m = document.getElementById('orderModal');
         if (m.style.display === 'flex') return;
 
@@ -923,7 +977,7 @@
         summaryEl.innerHTML = `
             <div>
                 <div style="font-weight: 700;">Чоловічі черевики з натуральної шкіри</div>
-                <div style="color: #666;">${activeColorName} · розмір ${activeSize}</div>
+                <div style="color: #666;">${activeColorName} · <span id="orderSummarySize">${sizeSummary()}</span></div>
             </div>
             <div style="color: #d32f2f; font-weight: 800; font-size: 18px; white-space: nowrap;">3850 ₴</div>
         `;
@@ -931,6 +985,7 @@
         document.getElementById('mainForm').style.display = '';
         document.getElementById('successMsg').style.display = 'none';
         resetOrderForm();
+        buildOrderSizeSelect();
         document.getElementById('subBtn').disabled = false;
         document.getElementById('subBtn').innerText = 'Підтвердити замовлення';
         m.scrollTop = 0;
@@ -1093,7 +1148,7 @@
         const orderData = {
             productName: "Чоловічі черевики з натуральної шкіри",
             colorName: activeColorName,
-            size: activeSize,
+            size: sizeForOrder(),
             price: "3850",
             name: name,
             displayPhone: displayPhone,
