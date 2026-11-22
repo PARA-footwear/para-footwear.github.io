@@ -18,7 +18,7 @@
 
         header { position: sticky; top: 0; z-index: 100; background: var(--dark); color: #fff; padding: 14px 0; }
         header.light { background: #fff; color: #111; border-bottom: 1px solid #eceae6; }
-        .header-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        .header-inner { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
         .brand { display: block; text-decoration: none; color: inherit; }
         .brand-text { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
         .brand-text span { color: var(--accent); }
@@ -28,22 +28,22 @@
         .header-info { font-size: 13px; color: #ccc; font-weight: 500; }
         header.light .header-info { color: #666; }
 
-        .hero { max-width: 1200px; margin: 0 auto; padding: 44px 20px 0; }
+        .hero { max-width: 1400px; margin: 0 auto; padding: 44px 20px 0; }
         .hero h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); line-height: 1.15; }
         .hero p { margin-top: 8px; color: var(--muted); font-size: 16px; max-width: 56ch; }
-        .trust { max-width: 1200px; margin: 22px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .trust { max-width: 1400px; margin: 22px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .trust div { background: var(--panel); border-radius: 14px; padding: 12px 14px; line-height: 1.35; }
         .trust b { display: block; font-size: 13px; color: var(--ink); }
         .trust span { font-size: 12px; color: var(--muted); }
 
-        .toolbar { max-width: 1200px; margin: 26px auto 0; padding: 0 20px; display: flex; gap: 12px; align-items: center; }
+        .toolbar { max-width: 1400px; margin: 26px auto 0; padding: 0 20px; display: flex; gap: 12px; align-items: center; }
         .search { position: relative; flex: 1; min-width: 0; }
         .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: none; stroke: #999; stroke-width: 2; stroke-linecap: round; }
         .search input { width: 100%; padding: 13px 14px 13px 42px; border: 1px solid var(--line); border-radius: 14px; font-size: 16px; background: #fff; outline: none; transition: 0.2s; }
         .sort { padding: 13px 12px; border: 1px solid var(--line); border-radius: 14px; font-size: 15px; background: #fff; outline: none; cursor: pointer; max-width: 46%; }
         .search input:focus, .sort:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(177,123,68,0.12); }
 
-        .chips { max-width: 1200px; margin: 16px auto 0; padding: 0 20px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+        .chips { max-width: 1400px; margin: 16px auto 0; padding: 0 20px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
         .chips::-webkit-scrollbar { display: none; }
         .chip { flex: 0 0 auto; border: 1px solid var(--line); background: #fff; color: #333; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit; }
         .chip small { color: #999; font-weight: 600; margin-left: 5px; font-size: 12px; }
@@ -51,13 +51,13 @@
         .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
         .chip.active small { color: #bbb; }
 
-        .meta { max-width: 1200px; margin: 18px auto 12px; padding: 0 20px; font-size: 13px; color: var(--muted); min-height: 20px; }
-        .catalog { max-width: 1200px; margin: 0 auto; padding: 0 20px 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+        .meta { max-width: 1400px; margin: 18px auto 12px; padding: 0 20px; font-size: 13px; color: var(--muted); min-height: 32px; display: flex; justify-content: space-between; align-items: center; }
+        .catalog { max-width: 1400px; margin: 0 auto; padding: 0 20px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px 20px; }
 
         .card { display: flex; flex-direction: column; text-decoration: none; color: inherit; min-width: 0; }
-        .card-media { position: relative; aspect-ratio: 4 / 5; background: var(--panel); border-radius: 20px; overflow: hidden; padding: 14px; }
-        .card-media img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s ease; }
+        .card-media { position: relative; aspect-ratio: 1 / 1; background: var(--panel); border-radius: 16px; overflow: hidden; }
+        .card-media img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
         .card:hover .card-media img { transform: scale(1.04); }
         .badge { position: absolute; top: 12px; left: 12px; background: #fff; color: #b3261e; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
         .card-body { padding: 12px 4px 0; display: flex; flex-direction: column; gap: 2px; flex: 1; }
@@ -107,6 +107,26 @@
             .card-go { width: 30px; height: 30px; font-size: 16px; }
             .about { padding: 48px 20px; }
         }
+
+        .view-toggle { display: none; gap: 6px; }
+        .view-btn { width: 38px; height: 32px; border: 1px solid var(--line); background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+        .view-btn svg { width: 18px; height: 18px; fill: none; stroke: #555; stroke-width: 2; }
+        .view-btn.active { background: var(--ink); border-color: var(--ink); }
+        .view-btn.active svg { stroke: #fff; }
+        @media (max-width: 768px) {
+            .meta { padding: 0 16px; }
+            .view-toggle { display: flex; }
+            .catalog { padding: 0 10px 20px; }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 16px 10px; }
+            .card-media { border-radius: 14px; padding: 0; }
+            .grid.cols-1 { grid-template-columns: 1fr; gap: 22px; }
+            .grid.cols-1 .card-title { font-size: 13px; }
+            .grid.cols-1 .card-color { font-size: 17px; }
+            .grid.cols-1 .card-price { font-size: 22px; }
+            .grid.cols-1 .card-old { font-size: 14px; }
+            .grid.cols-1 .card-go { width: 38px; height: 38px; font-size: 20px; }
+            .hero { padding-top: 22px; }
+        }
     </style>
 </head>
 <body>
@@ -146,7 +166,13 @@
     </div>
 
     <nav class="chips" id="chips" aria-label="Категорії"></nav>
-    <div class="meta" id="meta"></div>
+    <div class="meta">
+        <span id="meta"></span>
+        <div class="view-toggle" role="group" aria-label="Вигляд каталогу">
+            <button type="button" class="view-btn" data-cols="2" aria-label="Два в ряд" title="Два в ряд"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16" rx="2"></rect><rect x="13" y="4" width="8" height="16" rx="2"></rect></svg></button>
+            <button type="button" class="view-btn" data-cols="1" aria-label="Одне велике фото" title="Крупно"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect></svg></button>
+        </div>
+    </div>
 
     <main class="catalog">
         <div class="grid" id="productGrid"></div>
@@ -183,13 +209,14 @@
         const SETTINGS = {
             logo: 'logo.svg',        // файл логотипа в корені, поруч з index.html; '' — текстовий логотип
             headerTheme: 'dark',     // 'dark' або 'light' (світла шапка — для темного логотипа)
+            defaultCols: 2,          // на телефоні: 2 = два в ряд, 1 = одне велике фото (відвідувач може перемкнути сам)
             labels: { moccasins: 'Мокасини', loafers: 'Лофери', sneakers_low: 'Кеди', sandals: 'Сандалі', shoes: 'Туфлі', sneakers: 'Кросівки', boots: 'Черевики' }
         };
         // ========================================
 
         const CACHE_KEY = 'para_catalog_v2';
         const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="100%" height="100%" fill="#f5f3f0"/><text x="50%" y="50%" fill="#b17b44" font-family="sans-serif" font-size="28" font-weight="700" text-anchor="middle">PARA</text></svg>');
-        const state = { cat: decodeURIComponent(location.hash.slice(1)) || 'all', q: '', sort: 'default', config: {}, products: {}, loading: true, failed: false };
+        const state = { cols: 2, cat: decodeURIComponent(location.hash.slice(1)) || 'all', q: '', sort: 'default', config: {}, products: {}, loading: true, failed: false };
         const $ = id => document.getElementById(id);
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const num = t => parseInt(String(t || '').replace(/\D/g, ''), 10) || 0;
@@ -365,6 +392,16 @@
             render();
         }
 
+        function applyCols() {
+            $('productGrid').classList.toggle('cols-1', state.cols === 1);
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.cols) === state.cols));
+        }
+        function setCols(n) {
+            state.cols = n;
+            try { localStorage.setItem('para_catalog_cols', String(n)); } catch (e) {}
+            applyCols();
+        }
+
         function setCategory(cat) {
             state.cat = cat;
             history.replaceState(null, '', cat === 'all' ? location.pathname + location.search : '#' + cat);
@@ -377,6 +414,10 @@
             if (SETTINGS.logo) { $('brandImg').onload = () => $('brand').classList.add('has-logo'); $('brandImg').src = SETTINGS.logo; }
             else $('brandImg').remove();
 
+            state.cols = SETTINGS.defaultCols === 1 ? 1 : 2;
+            try { const saved = localStorage.getItem('para_catalog_cols'); if (saved === '1' || saved === '2') state.cols = Number(saved); } catch (e) {}
+            applyCols();
+            document.querySelector('.view-toggle').addEventListener('click', e => { const b = e.target.closest('.view-btn'); if (b) setCols(Number(b.dataset.cols)); });
             $('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) setCategory(b.dataset.cat); });
             $('productGrid').addEventListener('click', e => {
                 if (e.target.id === 'resetBtn') { state.q = ''; $('searchInput').value = ''; setCategory('all'); }
